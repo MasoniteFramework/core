@@ -5,11 +5,14 @@ python:
 - '3.5'
 - '3.6'
 
-install:
-- pip install -e .
-- pip install -r requirements.txt
+before_install:
+- pip install poetry
 
-script: travis_retry coverage run -m pytest
+install:
+- poetry install -E sass -E s3 -E scheduler -E entry
+- poetry develop
+
+script: travis_retry poetry run py.test
 
 deploy:
   provider: pypi

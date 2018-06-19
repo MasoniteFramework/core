@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "masonite"
+version = "2.0.4"
+description = "The core for the Masonite framework"
+authors = ["Joseph Mancuso <idmann509@gmail.com>", "Abram Isola <abram@isola.mn>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/MasoniteFramework/core"
+documentation = "https://docs.masoniteproject.com/"
+
+[tool.poetry.dependencies]
+python = "^3.4"
+"validator.py" = "^1.2.5"
+cryptography = "^2.2.2"
+bcrypt = "^3.1.4"
+requests = "^2.19.1"
+tldextract = "^2.2"
+Jinja2 = "^2.10"
+python-dotenv = "^0.8.2"
+passlib = "^1.7.1"
+whitenoise = "^3.3.1"
+orator = "^0.9.7"
+pendulum = "^1.5"
+cleo = "^0.6.6"
+tabulate = "^0.8.2"
+watchdog = "^0.8.3"
+waitress = "^1.1.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.5"
+
+[tool.poetry.extras]
+sass = ['libsass']
+s3 = ['boto3']
+scheduler = ['masonite-scheduler']
+entry = ['masonite-entry']
