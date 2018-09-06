@@ -2,11 +2,18 @@
 
 import json
 import re
-
+from BTrees.OOBTree import OOBTree
 from masonite.provider import ServiceProvider
 from masonite.view import View
 from masonite.request import Request
 from masonite.routes import Route
+
+
+def create_route_tree(routes):
+    RouteTree = OOBTree()
+    for route in routes:
+        RouteTree.update(route.route_url, route)
+    return RouteTree
 
 
 class RouteProvider(ServiceProvider):
@@ -16,11 +23,13 @@ class RouteProvider(ServiceProvider):
 
     def boot(self, route_class: Route, request_class: Request):
 
-        # All routes joined
-        for route in self.app.make('WebRoutes'):
-            router = route_class
-            request = request_class
+        RouteTree = create_route_tree(self.app.make('WebRoutes'))
 
+        router = route_class
+        # All routes joined
+        if route_class.url in RouteTree:
+            route = RouteTree[router.url]
+            request = request_class
             # Compiles the given route to regex
             regex = router.compile_route_to_regex(route)
 
@@ -58,7 +67,6 @@ class RouteProvider(ServiceProvider):
                     # check if the subdomain matches the routes domain
                     if not route.has_required_domain():
                         self.app.bind('Response', 'Route not found. Error 404')
-                        continue
 
                 # This will create a dictionary of parameters given.
                 # This is sort of a short
@@ -69,7 +77,8 @@ class RouteProvider(ServiceProvider):
                 try:
                     parameter_dict = {}
                     for index, value in enumerate(matchurl.match(router.url).groups()):
-                        parameter_dict[router.generated_url_list()[index]] = value
+                        parameter_dict[router.generated_url_list()[
+                            index]] = value
                     request.set_params(parameter_dict)
                 except AttributeError:
                     pass
@@ -105,7 +114,7 @@ class RouteProvider(ServiceProvider):
                 # output of the controller method
                 if not request.redirect_url:
                     request_class.status('200 OK')
-                    
+
                     response = route.get_response()
 
                     self.app.bind(
@@ -127,13 +136,12 @@ class RouteProvider(ServiceProvider):
                 | This is middleware with an after method.
                 |
                 """
-    
+
                 for http_middleware in self.app.make('HttpMiddleware'):
                     located_middleware = self.app.resolve(
                         http_middleware
                     )
                     if hasattr(located_middleware, 'after'):
                         located_middleware.after()
-                break
             else:
                 self.app.bind('Response', 'Route not found. Error 404')

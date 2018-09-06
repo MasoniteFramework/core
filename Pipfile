@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+libsass = "*"
+"jinja2" = "*"
+whitenoise = "*"
+python-dotenv = "*"
+btrees = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
