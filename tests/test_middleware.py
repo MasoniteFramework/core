@@ -2,6 +2,7 @@ from masonite.app import App
 from masonite.request import Request
 from masonite.view import View
 from masonite.routes import Get, Route
+from masonite.helpers.routes import compile_routes_to_dictionary
 from masonite.testsuite import generate_wsgi
 from masonite.auth import Csrf
 from masonite.providers import RouteProvider
@@ -23,9 +24,9 @@ class TestMiddleware:
 
         self.app.bind('ViewClass', View(self.app))
 
-        self.app.bind('WebRoutes', [
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([
             Get().route('/', 'TestController@show').middleware('test')
-        ])
+        ]))
 
         self.app.bind('HttpMiddleware', [
             MiddlewareHttpTest

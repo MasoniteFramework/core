@@ -9,15 +9,25 @@ from masonite.request import Request
 from masonite.routes import Route
 
 
+
+
+def find_route_list(routes, route_class, container):
+    try:
+        return routes[len(route_class.url.split('/'))]
+    except (KeyError, IndexError):
+        container.bind('Response', 'Route not found. Error 404')
+        return []
+
+
 class RouteProvider(ServiceProvider):
 
     def register(self):
         pass
 
     def boot(self, route_class: Route, request_class: Request):
+        # routes = route_compile(self.app.make('WebRoutes'))
 
-        # All routes joined
-        for route in self.app.make('WebRoutes'):
+        for route in find_route_list(self.app.make('CompiledRoutes'), route_class, self.app):
             router = route_class
             request = request_class
 

@@ -155,3 +155,15 @@ def compile_route_to_regex(route):
     regex += '$'
 
     return regex
+
+
+def compile_routes_to_dictionary(route_list):
+    dictionary = {}
+
+    for route in route_list:
+        section_length = len(route.route_url.split('/'))
+        if not section_length in dictionary:
+            dictionary[section_length] = []
+
+        dictionary[section_length].append(route)
+    return dictionary

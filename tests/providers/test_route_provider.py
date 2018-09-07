@@ -1,9 +1,9 @@
 from masonite.app import App
-from masonite.routes import Route
+from masonite.routes import Route, Get
 from masonite.request import Request
 from masonite.providers.RouteProvider import RouteProvider
 from masonite.view import View
-from masonite.helpers.routes import get
+from masonite.helpers.routes import get, compile_routes_to_dictionary
 from masonite.testsuite.TestSuite import generate_wsgi
 from app.http.controllers.ControllerTest import ControllerTest
 from config import middleware, application
@@ -16,7 +16,7 @@ class TestRouteProvider:
         self.app.bind('Container', self.app)
         self.app.bind('Environ', generate_wsgi())
         self.app.bind('Application', application)
-        self.app.bind('WebRoutes', [])
+        self.app.bind('CompiledRoutes', [])
         self.app.bind('Route', Route(self.app.make('Environ')))
         self.app.bind('Request', Request(self.app.make('Environ')).load_app(self.app))
         self.app.bind('Headers', [])
@@ -29,7 +29,7 @@ class TestRouteProvider:
      
     def test_controller_that_returns_a_view(self):
         self.app.make('Route').url = '/view'
-        self.app.bind('WebRoutes', [get('/view', ControllerTest.test)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([get('/view', ControllerTest.test)]))
 
         self.provider.boot(
             self.app.make('Route'),
@@ -40,7 +40,7 @@ class TestRouteProvider:
 
     def test_controller_does_not_return_with_non_matching_end_slash(self):
         self.app.make('Route').url = '/view'
-        self.app.bind('WebRoutes', [get('/view/', ControllerTest.returns_a_view)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([get('/view/', ControllerTest.returns_a_view)]))
 
         self.provider.boot(
             self.app.make('Route'),
@@ -52,7 +52,7 @@ class TestRouteProvider:
 
     def test_provider_runs_through_routes(self):
         self.app.make('Route').url = '/test'
-        self.app.bind('WebRoutes', [get('/test', ControllerTest.show)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([get('/test', ControllerTest.show)]))
 
         self.provider.boot(
             self.app.make('Route'),
@@ -64,7 +64,15 @@ class TestRouteProvider:
 
     def test_sets_request_params(self):
         self.app.make('Route').url = '/test/1'
-        self.app.bind('WebRoutes', [get('/test/@id', ControllerTest.show)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([
+            get('/test/@id', ControllerTest.show),
+            get('/test/id/1', ControllerTest.show),
+            get('/test/id/2', ControllerTest.show),
+            get('/test/id/5', ControllerTest.show),
+            get('/test/id/6', ControllerTest.show),
+            get('/test', ControllerTest.show),
+            ])
+        )
 
         self.provider.boot(
             self.app.make('Route'),
@@ -75,7 +83,7 @@ class TestRouteProvider:
     
     def test_url_with_dots_finds_route(self):
         self.app.make('Route').url = '/test/user.endpoint'
-        self.app.bind('WebRoutes', [get('/test/@endpoint', ControllerTest.show)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([get('/test/@endpoint', ControllerTest.show)]))
 
         self.provider.boot(
             self.app.make('Route'),
@@ -86,7 +94,7 @@ class TestRouteProvider:
     
     def test_url_with_dashes_finds_route(self):
         self.app.make('Route').url = '/test/user-endpoint'
-        self.app.bind('WebRoutes', [get('/test/@endpoint', ControllerTest.show)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([get('/test/@endpoint', ControllerTest.show)]))
 
         self.provider.boot(
             self.app.make('Route'),
@@ -98,7 +106,7 @@ class TestRouteProvider:
     def test_route_subdomain_ignores_routes(self):
         self.app.make('Route').url = '/test'
         self.app.make('Environ')['HTTP_HOST'] = 'subb.domain.com'
-        self.app.bind('WebRoutes', [get('/test', ControllerTest.show)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([get('/test', ControllerTest.show)]))
 
         request = self.app.make('Request')
         request.activate_subdomains()
@@ -112,7 +120,7 @@ class TestRouteProvider:
     
     def test_controller_returns_json_response_for_dict(self):
         self.app.make('Route').url = '/view'
-        self.app.bind('WebRoutes', [get('/view', ControllerTest.returns_a_dict)])
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([get('/view', ControllerTest.returns_a_dict)]))
 
         self.provider.boot(
             self.app.make('Route'),
@@ -125,9 +133,9 @@ class TestRouteProvider:
     def test_route_runs_str_middleware(self):
         self.app.make('Route').url = '/view'
         self.app.bind('RouteMiddleware', middleware.ROUTE_MIDDLEWARE)
-        self.app.bind('WebRoutes', [
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([
             get('/view', ControllerTest.returns_a_dict).middleware('test')
-            ]
+            ])
         )
 
         self.provider.boot(
@@ -140,9 +148,25 @@ class TestRouteProvider:
     def test_route_runs_middleware_with_list(self):
         self.app.make('Route').url = '/view'
         self.app.bind('RouteMiddleware', middleware.ROUTE_MIDDLEWARE)
-        self.app.bind('WebRoutes', [
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([
             get('/view', ControllerTest.returns_a_dict).middleware('middleware.test')
-            ]
+            ])
+        )
+
+        self.provider.boot(
+            self.app.make('Route'),
+            self.app.make('Request')
+        )
+
+        assert self.app.make('Request').path == 'test/middleware/before/ran'
+        assert self.app.make('Request').attribute == True
+
+    def test_route_compiling_to_regex(self):
+        self.app.make('Route').url = '/view/'
+        self.app.bind('RouteMiddleware', middleware.ROUTE_MIDDLEWARE)
+        self.app.bind('CompiledRoutes', compile_routes_to_dictionary([
+            get('/view/', ControllerTest.returns_a_dict).middleware('middleware.test')
+        ])
         )
 
         self.provider.boot(
