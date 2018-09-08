@@ -9,7 +9,7 @@ from masonite.commands import (AuthCommand, CommandCommand, ControllerCommand,
                                MigrateCommand, MigrateRefreshCommand, MigrateStatusCommand,
                                MigrateResetCommand, MigrateRollbackCommand,
                                ModelCommand, ProviderCommand, RoutesCommand,
-                               SeedCommand, SeedRunCommand, ServeCommand,
+                               SeedCommand, SeedRunCommand, ServeCommand, TestCommand,
                                TinkerCommand, ViewCommand, ValidatorCommand)
 
 from masonite.exception_handler import ExceptionHandler
@@ -57,6 +57,7 @@ class AppProvider(ServiceProvider):
         self.app.bind('MasoniteServeCommand', ServeCommand())
         self.app.bind('MasoniteSeedCommand', SeedCommand())
         self.app.bind('MasoniteSeedRunCommand', SeedRunCommand())
+        self.app.bind('MasoniteTestCommand', TestCommand())
         self.app.bind('MasoniteTinkerCommand', TinkerCommand())
         self.app.bind('MasoniteValidatorCommand', ValidatorCommand())
 
@@ -71,7 +72,7 @@ class AppProvider(ServiceProvider):
 
     def _autoload(self, directories):
         Autoload(self.app).load(directories)
-    
+
     def _set_application_debug_level(self):
         if self.app.make('Application').DEBUG == 'True':
             self.app.make('Application').DEBUG == True
