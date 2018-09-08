@@ -19,4 +19,5 @@ from .ValidatorCommand import ValidatorCommand
 from .RoutesCommand import RoutesCommand
 from .SeedCommand import SeedCommand
 from .SeedRunCommand import SeedRunCommand
+from .TestCommand import TestCommand
 from .TinkerCommand import TinkerCommand
