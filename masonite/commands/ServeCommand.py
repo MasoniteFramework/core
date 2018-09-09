@@ -17,13 +17,18 @@ class ServeCommand(Command):
         {--port=8000 : Specify which port to run the server}
         {--host=127.0.0.1 : Specify which ip address to run the server}
         {--r|reload : Make the server automatically reload on file changes}
+        {--t|test : Test project before running the server}
     """
 
     def handle(self):
         self._check_patch()
-        if self.option('reload'):
+        if self.option('reload') and self.option('test'):
+            self._run_with_reloader_and_test(extra_files=[".env"])
+        elif self.option('reload'):
             self._run_with_reloader(extra_files=[".env"])
-
+        elif self.option('test'):
+            subprocess.call(["python", "-m", "pytest"])
+            self._run_application()
         else:
             self._run_application()
 
@@ -33,7 +38,7 @@ class ServeCommand(Command):
             application,
             host=self.option('host'),
             port=self.option('port'))
-    
+
     def _check_patch(self):
         patched = False
 
@@ -46,7 +51,7 @@ class ServeCommand(Command):
             if line.startswith("for provider in container.make('Providers'):"):
                 patched = True
                 break
-        
+
         if not patched:
             print('\033[93mWARNING: {}\033[0m'.format(
                 "Your application does not have a 2.0 patch! You can read more about this patch here: https://dev.to/josephmancuso/masonite-framework-20-patch-3op2"))
@@ -55,7 +60,8 @@ class ServeCommand(Command):
         """Run the given function in an independent python interpreter."""
         import signal
         from wsgi import application
-        reloader = WatchdogReloaderLoop(extra_files, interval, log_func=self.comment)
+        reloader = WatchdogReloaderLoop(
+            extra_files, interval, log_func=self.comment)
         signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
         try:
             if os.environ.get('MASONITE_RUN_MAIN') == 'true':
@@ -67,6 +73,26 @@ class ServeCommand(Command):
                 sys.exit(reloader.restart_with_reloader())
         except KeyboardInterrupt:
             pass
+
+    def _run_with_reloader_and_test(self, extra_files=None, interval=1):
+        """Runs pytest before running the given function in an independent python interpreter."""
+        import signal
+        from wsgi import application
+        reloader = WatchdogReloaderLoop(
+            extra_files, interval, log_func=self.comment)
+        signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
+        try:
+            if os.environ.get('MASONITE_RUN_MAIN') == 'true':
+                subprocess.call(['python', '-m', 'pytest'])
+                t = threading.Thread(target=self._run_application, args=())
+                t.setDaemon(True)
+                t.start()
+                reloader.run()
+            else:
+                sys.exit(reloader.restart_with_reloader())
+        except KeyboardInterrupt:
+            pass
+
 
 '''
 |--------------------------------------------------------------------------
