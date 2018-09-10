@@ -1,5 +1,6 @@
 from app.http.middleware.MiddlewareTest import MiddlewareTest
 from masonite.middleware import JsonResponseMiddleware
+from masonite.middleware import CorsMiddleware
 from app.http.middleware.AddAttributeMiddleware import AddAttributeMiddleware
 
 
@@ -12,5 +13,6 @@ ROUTE_MIDDLEWARE = {
 }
 
 HTTP_MIDDLEWARE = [
-    JsonResponseMiddleware
+    JsonResponseMiddleware,
+    CorsMiddleware
 ]
