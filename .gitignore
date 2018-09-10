@@ -20,3 +20,5 @@ tests/bootstrap/cache/*.txt
 /uploads/
 .coverage
 .idea/
+Pipfile
+Pipfile.lock
