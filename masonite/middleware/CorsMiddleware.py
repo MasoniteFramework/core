@@ -6,7 +6,7 @@ class CorsMiddleware:
     def __init__(self, request: Request):
         self.request = request
 
-    def after(self):                          
+    def before(self):                          
         '''
         |--------------------------------------------------------------------------
         | Create Dictionary of CORS headers
@@ -14,13 +14,12 @@ class CorsMiddleware:
         |
         | Appends CORS headers to HTTP response
         |
-        | Ex. cors = {"Access-Control-Allow-Origin": "*",
-        |             "Access-Control-Allow-Headers": "Content-Type",
-        |             "Access-Control-Allow-Methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT"}
-        |
         '''
 
-        cors = dict()
+        # Demo CORS values - Modify for your own CORS values
+        cors = {"Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT"}
         
         for key, value in cors.items():
             self.request.header(key, value, http_prefix=None)

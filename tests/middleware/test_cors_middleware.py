@@ -1,28 +1,22 @@
+""" Test CORS Middleware """
 from masonite.request import Request
-from masonite.view import View
-from masonite.app import App
 from masonite.middleware import CorsMiddleware
 from masonite.testsuite.TestSuite import generate_wsgi
-import pytest
-from masonite.exceptions import InvalidCSRFToken
 
-class TestCSRFMiddleware:
+class TestCORSMiddleware:
 
-    def setup_method(self):
-        self.app = App()
-        self.request = Request(generate_wsgi())    
-        self.view = View(self.app)
-        self.app.bind('Request', self.request)
-
-        self.request = self.app.make('Request')
-
+   def setup_method(self):
+        self.request = Request(generate_wsgi())
         self.middleware = CorsMiddleware(self.request)
 
-    def test_cors_headers(self):
-        self.middleware.after()
+   def test_cors_middleware(self):
+        self.middleware.before()
 
+        # Demo CORS values - Cope your CORS values from CorsMiddleware.py
         cors = {"Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Allow-Methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT"}
-
         
+        for key, value in cors.items():
+            assert self.request.header(key) == value
+
