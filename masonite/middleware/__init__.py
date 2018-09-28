@@ -1,3 +1,4 @@
 from .JsonResponseMiddleware import JsonResponseMiddleware
 from .CsrfMiddleware import CsrfMiddleware
+from .CorsMiddleware import CorsMiddleware
 from .MaintenanceModeMiddleware import MaintenanceModeMiddleware

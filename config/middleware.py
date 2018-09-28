@@ -1,6 +1,7 @@
 """ Middleware Configuration Settings """
 
 from masonite.middleware import JsonResponseMiddleware
+from masonite.middleware import CorsMiddleware
 
 from app.http.middleware.AddAttributeMiddleware import AddAttributeMiddleware
 from app.http.middleware.AuthenticationMiddleware import AuthenticationMiddleware
@@ -50,3 +51,9 @@ ROUTE_MIDDLEWARE = {
         AddAttributeMiddleware,
     ]
 }
+
+HTTP_MIDDLEWARE = [
+    JsonResponseMiddleware,
+    CorsMiddleware
+]
+
