@@ -51,11 +51,9 @@ ROUTE_MIDDLEWARE = {
         AddAttributeMiddleware,
     ]
 }
-<<<<<<< HEAD
 
 HTTP_MIDDLEWARE = [
     JsonResponseMiddleware,
     CorsMiddleware
 ]
-=======
->>>>>>> 1a1db8b02116f9b884824c56934c0bf5b3008724
+
