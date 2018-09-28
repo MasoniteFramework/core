@@ -144,7 +144,7 @@ def compile_route_to_regex(route):
                 regex += r'([a-zA-Z]+)'
             else:
                 # default
-                regex += r'(\w+)'
+                regex += r'([\w.-]+)'
             regex += r'\/'
 
             # append the variable name passed @(variable):int to a list
@@ -175,11 +175,17 @@ def create_matchurl(router, route):
     """
 
     # Compiles the given route to regex
-    regex = router.compile_route_to_regex(route)
+    regex = route.compile_route_to_regex(router)
 
     if route.route_url.endswith('/'):
-        matchurl = re.compile(regex.replace(r'\/\/$', r'\/$'))
+        if router.url.endswith('/'):
+            matchurl = re.compile(regex.replace(r'\/\/$', r'\/$'))
+        else:
+            matchurl = re.compile(regex.replace(r'\/\/$', r'$'))
     else:
-        matchurl = re.compile(regex.replace(r'\/$', r'$'))
+        if router.url.endswith('/'):
+            matchurl = re.compile(regex)
+        else:
+            matchurl = re.compile(regex.replace(r'\/$', r'$'))
 
     return matchurl
