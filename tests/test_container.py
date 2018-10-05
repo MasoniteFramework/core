@@ -151,3 +151,20 @@ class TestContainer:
         req = Request()
         app.simple(req)
         assert app.make(Request) == req
+
+    def test_app_can_merge_containers_together(self):
+        container1 = App()
+        container1.bind('Request', Request)
+        container1.bind('Dict', {'test': 'value'})
+        container1.bind('WebRoutes', [1,2])
+
+        container2 = App()
+        container2.bind('View', object)
+        container2.bind('Dict', {'another_test': 'value'})
+        container2.bind('WebRoutes', [3, 4])
+
+        container1.merge(container2)
+
+        assert container1.make('View')
+        assert container1.make('Dict') == {'test': 'value', 'another_test': 'value'}
+        assert container1.make('WebRoutes') == [1,2,3,4]
