@@ -40,9 +40,5 @@ class StatusCodeProvider(ServiceProvider):
                 rendered_view = self.app.make('View')('/masonite/snippets/statuscode', {
                     'code': StatusCode
                 }).rendered_template
-            Headers = [
-                ("Content-Length", str(len(rendered_view)))
-            ]
+                
             self.app.bind('Response', rendered_view)
-
-            self.app.bind('Headers', Headers)
