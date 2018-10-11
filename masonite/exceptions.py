@@ -1,12 +1,17 @@
+""" Masonite Exceptions """
+
 class DriverNotFound(Exception):
+    """ Thrown when drivers are not found """
     pass
 
 
 class DriverLibraryNotFound(Exception):
+    """ Thrown when driver libraries are not found """
     pass
 
 
 class FileTypeException(Exception):
+    """ Thrown when file types are incorrect """
     pass
 
 
@@ -27,14 +32,17 @@ class ContainerError(Exception):
 
 
 class InvalidCSRFToken(Exception):
+    """ Thrown when CSRF tokens expire or are incorrect are not found """
     pass
 
 
 class InvalidHTTPStatusCode(Exception):
+    """ Thrown when there is an invalid http status code """
     pass
 
 
 class RouteMiddlewareNotFound(Exception):
+    """ Thrown when route middleware is not found """
     pass
 
 

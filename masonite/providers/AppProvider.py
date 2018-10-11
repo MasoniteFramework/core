@@ -4,15 +4,6 @@ from config import application, middleware, storage
 
 from masonite.autoload import Autoload
 from masonite.commands import (AuthCommand, CommandCommand, ControllerCommand,
-<<<<<<< HEAD
-                               InfoCommand, InstallCommand, JobCommand,
-                               KeyCommand, MakeMigrationCommand,
-                               MigrateCommand, MigrateRefreshCommand,
-                               MigrateResetCommand, MigrateRollbackCommand,
-                               ModelCommand, ModelDocstringCommand, ProviderCommand, RoutesCommand,
-                               SeedCommand, SeedRunCommand, ServeCommand, QueueWorkCommand,
-                               TinkerCommand, ViewCommand, ValidatorCommand)
-=======
                                DownCommand, InfoCommand, InstallCommand,
                                JobCommand, KeyCommand, MiddlewareCommand,
                                MakeMigrationCommand, MigrateCommand, MigrateRefreshCommand,
@@ -20,7 +11,6 @@ from masonite.commands import (AuthCommand, CommandCommand, ControllerCommand,
                                ModelCommand, ProviderCommand, RoutesCommand,
                                SeedCommand, SeedRunCommand, ServeCommand,
                                TinkerCommand, UpCommand, ViewCommand, ValidatorCommand)
->>>>>>> 40715fb3c57f1b75ab5419706b37d69c1f642555
 
 from masonite.exception_handler import ExceptionHandler
 from masonite.helpers.routes import flatten_routes

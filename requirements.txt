@@ -11,12 +11,6 @@ certifi==2018.8.24
 cffi==1.11.5
 chardet==3.0.4
 cleo==0.6.5
-<<<<<<< HEAD
-pika
-
-pytest
-coveralls
-=======
 coverage==4.5.1
 coveralls==1.5.0
 cryptography==2.3
@@ -66,4 +60,3 @@ waitress==1.1.0
 whitenoise==4.0
 wrapt==1.10.11
 flake8==3.5.0
->>>>>>> 40715fb3c57f1b75ab5419706b37d69c1f642555

@@ -123,13 +123,10 @@ class View:
 
         return self
 
-<<<<<<< HEAD
-=======
     def extend(self):
         """Extend class."""
         pass
 
->>>>>>> 40715fb3c57f1b75ab5419706b37d69c1f642555
     def share(self, dictionary):
         """Share data to all templates.
 
