@@ -1,15 +1,15 @@
+"""Migrate Reset Command."""
 import os
 import sys
 
 from cleo import Command
-
 from masonite.packages import add_venv_site_packages
 from orator.exceptions.query import QueryException
 
 
 class MigrateResetCommand(Command):
     """
-    Migrate reset
+    Migrate reset.
 
     migrate:reset
     """

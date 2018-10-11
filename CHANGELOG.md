@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Sentimental Versioning](http://sentimentalversioning.org/).
 
+<<<<<<< HEAD
 ## [2.0.26](https://github.com/MasoniteFramework/core/releases/tag/v2.0.26) - 2018-10-08
 ### Fixed
 - [Fixed passing variables into jobs](https://docs.masoniteproject.com/useful-features/queues-and-jobs#passing-variables-into-jobs)
@@ -57,6 +58,22 @@ and this project adheres to [Sentimental Versioning](http://sentimentalversionin
 ## [2.0.17](https://github.com/MasoniteFramework/core/releases/tag/v2.0.17) - 2018-08-27
 ### Fixed
 - Fixed Issue where the autoloader was loading more directories than it was suppose to
+=======
+## [2.0.19](https://github.com/MasoniteFramework/core/releases/tag/v2.0.19) - 2018-09-02
+
+### Fixed
+- Fixed an issue where the reset migration command was not throwing `QueryExceptions`.
+
+## [2.0.18](https://github.com/MasoniteFramework/core/releases/tag/v2.0.18) - 2018-08-30
+
+### Fixed
+- Fixed issue where route groups were overriding middleware
+
+## [2.0.17](https://github.com/MasoniteFramework/core/releases/tag/v2.0.17) - 2018-08-28
+
+### Fixed
+- Fixed an issue where the autoloader was loading more directories than it was suppose to
+>>>>>>> 40715fb3c57f1b75ab5419706b37d69c1f642555
 
 ## [2.0.16](https://github.com/MasoniteFramework/core/releases/tag/v2.0.16) - 2018-08-22
 ### Added
