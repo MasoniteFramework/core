@@ -1,7 +1,7 @@
 """ Masonite Exceptions """
 
 class DriverNotFound(Exception):
-    """ Thrown when drivers are not found """
+    """ Thrown when the driver can not be found """
     pass
 
 
@@ -16,23 +16,27 @@ class FileTypeException(Exception):
 
 
 class RequiredContainerBindingNotFound(Exception):
+    """ Thrown when the Cache key binding is not found in the container """
     pass
 
 
 class MissingContainerBindingNotFound(Exception):
+    """ Thrown if the key is not in the container """
     pass
 
 
 class UnacceptableDriverType(Exception):
+    """ Thrown when a driver passed in is not a string or a class """
     pass
 
 
 class ContainerError(Exception):
+    """ Thrown when the container is not loaded into the class """
     pass
 
 
 class InvalidCSRFToken(Exception):
-    """ Thrown when CSRF tokens expire or are incorrect are not found """
+    """ Thrown when CSRF tokens are invalid """
     pass
 
 
@@ -47,28 +51,35 @@ class RouteMiddlewareNotFound(Exception):
 
 
 class ResponseError(Exception):
+    """ Thrown when an acceptable response type was not returned"""
     pass
 
 
 class InvalidAutoloadPath(Exception):
+    """ Thrown when the search path ends with a forward  """
     pass
 
 
 class AutoloadContainerOverwrite(Exception):
+    """ Thrown when the container already has the key binding """
     pass
 
 
 class InvalidSecretKey(Exception):
+    """ Thrown if the secret key does not exist """
     pass
 
 
 class StrictContainerException(Exception):
+    """ Thrown when tryingto override a key inside a strict container """
     pass
 
 
 class InvalidRouteCompileException(Exception):
+    """ Thrown when a user's route compiler is not an available route compiler """
     pass
 
 
 class RouteException(Exception):
+    """ Thrown when method type needs to be a list  """
     pass
