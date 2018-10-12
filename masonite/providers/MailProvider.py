@@ -1,9 +1,10 @@
-""" A Mail Service Provider """
+"""A Mail Service Provider."""
 
 from config import mail
 from masonite.drivers import MailMailgunDriver, MailSmtpDriver
 from masonite.managers import MailManager
 from masonite.provider import ServiceProvider
+from masonite import Mail
 
 
 class MailProvider(ServiceProvider):
@@ -18,3 +19,4 @@ class MailProvider(ServiceProvider):
 
     def boot(self, manager: MailManager):
         self.app.bind('Mail', manager.driver(self.app.make('MailConfig').DRIVER))
+        self.app.swap(Mail, manager.driver(self.app.make('MailConfig').DRIVER))
