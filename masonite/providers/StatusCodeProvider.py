@@ -9,9 +9,9 @@ class ServerErrorExceptionHook:
     def load(self, app):
         if application.DEBUG:
             return
-        
+
         request = app.make('Request')
-        
+
         request.status(500)
         if app.make('ViewClass').exists('errors/500'):
             rendered_view = app.make('View')('errors/500').rendered_template
