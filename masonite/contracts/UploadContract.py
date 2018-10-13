@@ -1,7 +1,9 @@
+""" Upload Contract """
 from abc import ABC, abstractmethod
 
 
 class UploadContract(ABC):
+    """ Class for Upload Contract """
 
     @abstractmethod
     def accept(self):

@@ -1,8 +1,9 @@
+""" Json Response Middleware """
 import json
 from masonite.request import Request
 
-
 class JsonResponseMiddleware:
+    """ Class which sets json response """ 
 
     def __init__(self, request: Request):
         self.request = request

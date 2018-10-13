@@ -1,7 +1,10 @@
+""" Cache Contract """
 from abc import ABC, abstractmethod
 
 
 class CacheContract(ABC):
+    """ Class for Cache Contract """
+
 
     @abstractmethod
     def store(self):

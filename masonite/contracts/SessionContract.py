@@ -1,7 +1,9 @@
+""" Session Contract """
 from abc import ABC, abstractmethod
 
 
 class SessionContract(ABC):
+    """ Class for Session Contract """
 
     @abstractmethod
     def get(self):
