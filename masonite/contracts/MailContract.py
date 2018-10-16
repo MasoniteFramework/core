@@ -1,7 +1,9 @@
+""" Mail Contract """
 from abc import ABC, abstractmethod
 
 
 class MailContract(ABC):
+    """ Class for Mail Contract """
 
     @abstractmethod
     def to(self):

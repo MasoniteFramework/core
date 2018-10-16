@@ -5,6 +5,7 @@ from config import application
 
 
 class MaintenanceModeMiddleware:
+    """ Class that initiates maintance mode """
 
     def __init__(self, request: Request):
         self.request = request
