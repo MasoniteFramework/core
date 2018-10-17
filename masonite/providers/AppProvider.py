@@ -8,8 +8,8 @@ from masonite.commands import (AuthCommand, CommandCommand, ControllerCommand,
                                MiddlewareCommand, MigrateCommand,
                                MigrateRefreshCommand, MigrateResetCommand,
                                MigrateRollbackCommand, MigrateStatusCommand,
-                               ModelCommand, ProviderCommand, RoutesCommand,
-                               SeedCommand, SeedRunCommand, ServeCommand,
+                               ModelCommand, ModelDocstringCommand, ProviderCommand, RoutesCommand,
+                               SeedCommand, SeedRunCommand, ServeCommand, QueueWorkCommand,
                                TinkerCommand, UpCommand, ValidatorCommand,
                                ViewCommand)
 from masonite.exception_handler import ExceptionHandler
@@ -53,7 +53,9 @@ class AppProvider(ServiceProvider):
         self.app.bind('MasoniteMigrateRollbackCommand',
                       MigrateRollbackCommand())
         self.app.bind('MasoniteModelCommand', ModelCommand())
+        self.app.bind('MasoniteModelDocstringCommand', ModelDocstringCommand())
         self.app.bind('MasoniteProviderCommand', ProviderCommand())
+        self.app.bind('MasoniteQueueWorkCommand', QueueWorkCommand())
         self.app.bind('MasoniteViewCommand', ViewCommand())
         self.app.bind('MasoniteRoutesCommand', RoutesCommand())
         self.app.bind('MasoniteServeCommand', ServeCommand())
@@ -66,7 +68,6 @@ class AppProvider(ServiceProvider):
         self._autoload(application.AUTOLOAD)
 
     def boot(self, request: Request, route: Route):
-        self.app.bind('Headers', [])
         self.app.bind('StatusCode', '404 Not Found')
         route.load_environ(self.app.make('Environ'))
         request.load_environ(self.app.make('Environ')).load_app(self.app)
