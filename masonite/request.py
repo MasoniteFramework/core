@@ -372,11 +372,11 @@ class Request(Extendable):
         self._headers = []
 
     def get_and_reset_headers(self):
-        """Gets the headers but resets at the same time. 
+        """Gets the headers but resets at the same time.
 
         This is useful at the end of the WSGI request to prevent
-        Several requests from 
-        
+        Several requests from
+
         Returns:
             tuple
         """
