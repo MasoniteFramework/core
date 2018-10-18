@@ -17,7 +17,7 @@ class CsrfMiddleware:
 
     def __init__(self, request: Request, csrf: Csrf, view: View):
         """Initialize the CSRF Middleware
-        
+
         Arguments:
             request {masonite.request.Request} -- The normal Masonite request class.
             csrf {masonite.auth.Csrf} -- CSRF auth class.
@@ -43,7 +43,7 @@ class CsrfMiddleware:
 
     def in_exempt(self):
         """Determine if the request has a URI that should pass through CSRF verification.
-        
+
         Returns:
             bool
         """
@@ -55,7 +55,7 @@ class CsrfMiddleware:
 
     def generate_token(self):
         """Generate a token that will be used for CSRF protection
-        
+
         Returns:
             string -- A random string based on the length given
         """
@@ -64,10 +64,10 @@ class CsrfMiddleware:
 
     def verify_token(self):
         """Verify if csrf token in post is valid.
-        
+
         Raises:
             InvalidCSRFToken -- Thrown if the CSRF tokens do not match.
-        
+
         Returns:
             string -- Returns a new token or the current token.
         """
