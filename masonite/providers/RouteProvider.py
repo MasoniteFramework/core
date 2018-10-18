@@ -86,8 +86,8 @@ class RouteProvider(ServiceProvider):
                     # Looks like a route is about to execute so let's set the status code to 200
                     request.status(200)
 
-                    """Get the response from the route and set it on the 'Response' key. 
-                        This data is typically the output of the controller method depending 
+                    """Get the response from the route and set it on the 'Response' key.
+                        This data is typically the output of the controller method depending
                         on the type of route.
                     """
 
@@ -103,7 +103,7 @@ class RouteProvider(ServiceProvider):
                 route.run_middleware('after')
 
                 """Excute HTTP after middleware
-                    Only those middleware that have an "after" method are ran. 
+                    Only those middleware that have an "after" method are ran.
                     Check here if the middleware even has the required method.
                 """
 
