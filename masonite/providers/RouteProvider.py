@@ -84,7 +84,7 @@ class RouteProvider(ServiceProvider):
                 if request.get_status_code() == '404 Not Found':
 
                     # Looks like a route is about to execute so let's set the status code to 200
-                    request.status(200) 
+                    request.status(200)
 
                     """Get the response from the route and set it on the 'Response' key. 
                         This data is typically the output of the controller method depending 
