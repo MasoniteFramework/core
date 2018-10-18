@@ -13,7 +13,7 @@ class CsrfMiddleware:
 
     exempt = ['/']
     every_request = True
-    length = 30
+    token_length = 30
 
     def __init__(self, request: Request, csrf: Csrf, view: View):
         """Initialize the CSRF Middleware
@@ -60,7 +60,7 @@ class CsrfMiddleware:
             string -- A random string based on the length given
         """
 
-        return self.csrf.generate_csrf_token(self.length)
+        return self.csrf.generate_csrf_token(self.token_length)
 
     def verify_token(self):
         """Verify if csrf token in post is valid.
