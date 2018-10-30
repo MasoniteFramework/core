@@ -16,7 +16,7 @@ install:
 - pip install pipenv
 - pipenv install masonite-cli
 - pipenv install '-e .'
-- pipenv install 
+- pipenv sync
 
 script: 
 - travis_retry coverage run -m pytest
