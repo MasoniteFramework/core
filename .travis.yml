@@ -14,7 +14,7 @@ matrix:
 
 install:
 - pipenv install masonite_cli
-- pipenv install '-e .''
+- pipenv install '-e .'
 - pipenv install 
 
 script: 
