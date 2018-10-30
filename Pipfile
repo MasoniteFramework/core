@@ -69,9 +69,9 @@ PyYAML = "*"
 masonite-cli = "*"
 masonite-events = "*"
 pytest = "*"
+"e1839a8" = {editable = true, path = "."}
 
 [dev-packages]
 
 [requires]
 python_version = "3.6"
-

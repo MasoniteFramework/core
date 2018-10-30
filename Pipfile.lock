@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "44e8ca76683df3e5769c19e8d9d62def0973249faf25890ec9c4011bc891d8e2"
+            "sha256": "9cf00246ef1d7e284ac07b7786e1931d2f2ddccea179d097b5b1fdefbdad628c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,6 +22,13 @@
             ],
             "index": "pypi",
             "version": "==1.0.1"
+        },
+        "argh": {
+            "hashes": [
+                "sha256:a9b3aaa1904eeb78e32394cd46c6f37ac0fb4af6dc488daa58971bdc7d7fcaf3",
+                "sha256:e9535b8c84dc9571a48999094fda7f33e63c3f1b74f3e5f3ac0105a58405bb65"
+            ],
+            "version": "==0.26.2"
         },
         "asn1crypto": {
             "hashes": [
@@ -267,6 +274,10 @@
             "index": "pypi",
             "version": "==0.14"
         },
+        "e1839a8": {
+            "editable": true,
+            "path": "."
+        },
         "faker": {
             "hashes": [
                 "sha256:0184fa252f86214308bb6bed344f96294f2e3528fbffafc727890cf2a86d6027",
@@ -389,6 +400,12 @@
             "index": "pypi",
             "version": "==1.0.1"
         },
+        "masonite-scheduler": {
+            "hashes": [
+                "sha256:5f693f9cabce1f323abaeb4f68a4e7e14167a64beab946928d18a4aa963602ad"
+            ],
+            "version": "==1.0.0"
+        },
         "mccabe": {
             "hashes": [
                 "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42",
@@ -429,6 +446,13 @@
             "index": "pypi",
             "version": "==0.9.8"
         },
+        "passlib": {
+            "hashes": [
+                "sha256:3d948f64138c25633613f303bcc471126eae67c04d5e3f6b7b8ce6242f8653e0",
+                "sha256:43526aea08fa32c6b6dbbbe9963c4c767285b78147b7437597f992812f69d280"
+            ],
+            "version": "==1.7.1"
+        },
         "pastel": {
             "hashes": [
                 "sha256:3108af417ec0fa6d0a620e676ec4f02c839ca13e10611586e5d2174b46aa0bc3",
@@ -436,6 +460,12 @@
             ],
             "index": "pypi",
             "version": "==0.1.0"
+        },
+        "pathtools": {
+            "hashes": [
+                "sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0"
+            ],
+            "version": "==0.1.2"
         },
         "pendulum": {
             "hashes": [
@@ -720,6 +750,12 @@
             ],
             "index": "pypi",
             "version": "==1.1.0"
+        },
+        "watchdog": {
+            "hashes": [
+                "sha256:965f658d0732de3188211932aeb0bb457587f04f63ab4c1e33eab878e9de961d"
+            ],
+            "version": "==0.9.0"
         },
         "whitenoise": {
             "hashes": [

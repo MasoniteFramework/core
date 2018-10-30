@@ -14,8 +14,8 @@ matrix:
 
 install:
 - pip install pipenv
-- pipenv install '-e .' --pre
-- pipenv install --pre
+- pipenv install
+- pipenv install '-e .'
 
 script: 
 - travis_retry coverage run -m pytest
