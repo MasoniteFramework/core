@@ -44,10 +44,12 @@ class ExceptionHandler:
         """
 
         self._exception = exception
+        if self._app.has(exception):
+            return self._app.resolve(self._app.make(exception)).handle(exception)
 
-        self._render()
+        self.handle(exception)
 
-    def _render(self):
+    def handle(self, exception):
         """Render an exception view if the DEBUG configuration is True. Else this should not return anything.
 
         Returns:
