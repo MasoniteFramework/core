@@ -44,8 +44,10 @@ class ExceptionHandler:
         """
 
         self._exception = exception
-        if self._app.has(exception):
-            return self._app.resolve(self._app.make(exception)).handle(exception)
+        
+        print('Exception{}Handler'.format(exception.__class__.__name__))
+        if self._app.has('Exception{}Handler'.format(exception.__class__.__name__)):
+            return self._app.resolve(self._app.make('Exception{}Handler'.format(exception.__class__.__name__))).handle(exception)
 
         self.handle(exception)
 

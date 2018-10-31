@@ -36,15 +36,26 @@ class TestException:
         self.app.bind('ExceptionHandler', ExceptionHandler(self.app))
         self.app.bind('HookHandler', Hook(self.app))
         self.app.bind('Request', Request(generate_wsgi()).load_app(self.app))
-        self.app.bind(KeyError, MockExceptionHandler)
+        self.app.bind('ExceptionKeyErrorHandler', MockExceptionHandler)
 
     def test_exception_renders_view(self):
         self.app.make('ExceptionHandler').load_exception(OSError)
         assert self.app.make('Response') is not None
 
     def test_exception_uses_custom_exception(self):
-        self.app.make('ExceptionHandler').load_exception(KeyError)
+        try:
+            self.app.false()
+        except Exception as e:
+            print(e)
+            self.app.make('ExceptionHandler').load_exception(e)
+        
         assert self.app.make('Request').header('test') == 'test'
+
+    def test_custom_exception_when_not_registered(self):
+        try:
+            self.app.false()
+        except Exception as e:
+            self.app.make('ExceptionHandler').load_exception(e)
 
     def test_exception_returns_none_when_debug_is_false(self):
         self.app.make('Application').DEBUG = False

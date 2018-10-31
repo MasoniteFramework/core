@@ -82,7 +82,7 @@ class App():
             bool
         """
 
-        if isinstance(name, str) or name in self.providers:
+        if isinstance(name, str):
             return name in self.providers
         else:
             try:
