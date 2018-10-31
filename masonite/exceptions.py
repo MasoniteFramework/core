@@ -60,3 +60,7 @@ class InvalidRouteCompileException(Exception):
 
 class DebugException(Exception):
     pass
+
+
+class DumpException(Exception):
+    pass

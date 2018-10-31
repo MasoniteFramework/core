@@ -36,7 +36,7 @@ class TestException:
         self.app.bind('ExceptionHandler', ExceptionHandler(self.app))
         self.app.bind('HookHandler', Hook(self.app))
         self.app.bind('Request', Request(generate_wsgi()).load_app(self.app))
-        self.app.bind('ExceptionKeyErrorHandler', MockExceptionHandler)
+        self.app.bind('ExceptionAttributeErrorHandler', MockExceptionHandler)
 
     def test_exception_renders_view(self):
         self.app.make('ExceptionHandler').load_exception(OSError)
@@ -46,7 +46,6 @@ class TestException:
         try:
             self.app.false()
         except Exception as e:
-            print(e)
             self.app.make('ExceptionHandler').load_exception(e)
         
         assert self.app.make('Request').header('test') == 'test'
