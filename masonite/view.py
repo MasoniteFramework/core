@@ -45,6 +45,7 @@ class View:
         self.template = None
         self.environments = []
         self.extension = '.html'
+        self._jinja_extensions = ['jinja2.ext.loopcontrols']
         self._filters = {}
         self._tests = {}
 
@@ -72,17 +73,21 @@ class View:
         # Check if composers are even set for a speed improvement
         if self.composers:
             self._update_from_composers()
-        
+
         if self._tests:
             self.env.tests.update(self._tests)
 
         self.rendered_template = self._render()
 
         return self
-    
+
     def _render(self):
-        return self.env.get_template(self.filename).render(
-            self.dictionary)
+        try:
+            return self.env.get_template(self.filename).render(
+                self.dictionary)
+        except TemplateNotFound:
+            return self.env.get_template(self.template).render(
+                self.dictionary)
 
     def _update_from_composers(self):
         """Adds data into the view from specified composers.
@@ -184,7 +189,7 @@ class View:
         try:
             self.env.get_template(self.filename)
             return True
-        except TemplateNotFound as e:
+        except TemplateNotFound:
             return False
 
     def add_environment(self, template_location, loader=PackageLoader):
@@ -216,9 +221,13 @@ class View:
         """
 
         self._filters.update({name: function})
-    
+
     def test(self, key, obj):
         self._tests.update({key: obj})
+        return self
+
+    def add_extension(self, extension):
+        self._jinja_extensions.append(extension)
         return self
 
     def __load_environment(self, template):
@@ -243,7 +252,7 @@ class View:
                     [loader] + self.environments
                 ),
                 autoescape=select_autoescape(['html', 'xml']),
-                extensions=['jinja2.ext.loopcontrols']
+                extensions=self._jinja_extensions
             )
         else:
             self.env = Environment(
@@ -252,7 +261,7 @@ class View:
                     self.environments
                 ),
                 autoescape=select_autoescape(['html', 'xml']),
-                extensions=['jinja2.ext.loopcontrols']
+                extensions=self._jinja_extensions
             )
 
         self.env.filters.update(self._filters)
