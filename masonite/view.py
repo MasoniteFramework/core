@@ -83,11 +83,14 @@ class View:
 
     def _render(self):
         try:
+            # Try rendering the template with '.html' appended
             return self.env.get_template(self.filename).render(
                 self.dictionary)
         except TemplateNotFound:
+            # Try rendering the direct template the user has supplied
             return self.env.get_template(self.template).render(
                 self.dictionary)
+        
 
     def _update_from_composers(self):
         """Adds data into the view from specified composers.
@@ -245,21 +248,32 @@ class View:
             location = list(filter(None, template.split('/')))
             self.filename = location[-1] + self.extension
 
-            loader = PackageLoader(location[0], '/'.join(location[1:-1]))
+            loader = ChoiceLoader(
+                [PackageLoader(location[0], '/'.join(location[1:-1]))] + self.environments
+            )
+
+            # Set the searchpath since some packages look for this object
+            # This is sort of a hack for now
+            loader.searchpath = ''
 
             self.env = Environment(
-                loader=ChoiceLoader(
-                    [loader] + self.environments
-                ),
+                loader=loader,
                 autoescape=select_autoescape(['html', 'xml']),
                 extensions=self._jinja_extensions
             )
+        
         else:
-            self.env = Environment(
-                loader=ChoiceLoader(
+            loader = ChoiceLoader(
                     [PackageLoader('resources', 'templates')] +
                     self.environments
-                ),
+                )
+            
+            # Set the searchpath since some packages look for this object
+            # This is sort of a hack for now
+            loader.searchpath = ''
+
+            self.env = Environment(
+                loader=loader,
                 autoescape=select_autoescape(['html', 'xml']),
                 extensions=self._jinja_extensions
             )
