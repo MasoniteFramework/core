@@ -109,8 +109,6 @@ class DumpHandler:
         from config.database import Model
         self.app.make('HookHandler').fire('*ExceptionHook')
 
-        for key, method in inspect.getmembers(self.app.make('ObjDump')):
-            print(key)
         template = self.view.render(
             '/masonite/snippets/exceptions/dump', {
                 'obj': self.app.make('ObjDump'),
