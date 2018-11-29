@@ -17,7 +17,7 @@ class SessionProvider(ServiceProvider):
         self.app.bind('SessionCookieDriver', SessionCookieDriver)
         self.app.bind('SessionManager', SessionManager(self.app))
 
-    async def boot(self, request: Request, view: View, session: SessionManager):
+    def boot(self, request: Request, view: View, session: SessionManager):
     # def boot(self):
         # request = self.app.make('Request')
         # view = self.app.make('ViewClass')

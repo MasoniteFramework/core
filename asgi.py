@@ -2,12 +2,17 @@
 # from config import database
 from wsgi import container
 import asyncio
+import time
+import inspect
 
 async def main(providers):
     for provider in container.make('WSGIProviders'):
         # print(provider)
-        container.resolve(provider.boot)
-        # provider.boot()
+        # container.resolve(provider.boot)
+        if inspect.iscoroutinefunction(provider.boot):
+            await container.resolve(provider.boot)
+        else:
+            container.resolve(provider.boot)
 
 
 class Asgi():
@@ -21,7 +26,6 @@ class Asgi():
         the WSGI server above and used by a service provider to manipulate the
         incoming requests
         """
-        loop = asyncio.get_event_loop()
 
         container.bind('Environ', self.scope)
 
@@ -53,7 +57,7 @@ class Asgi():
         # return iter([bytes(container.make('Response'), 'utf-8')])
         await send({
             'type': 'http.response.start',
-            'status': container.make('Request').get_status(),
+            'status': 200,
             'headers': [
                 [b'content-type', b'text/html'],
             ],

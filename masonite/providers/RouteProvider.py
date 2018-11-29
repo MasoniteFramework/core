@@ -13,11 +13,11 @@ class RouteProvider(ServiceProvider):
     def register(self):
         pass
 
-    # def boot(self):
-    def boot(self, router: Route, request: Request, response: Response):
-        # router = self.app.make('Route')
-        # response = self.app.make(Response)
-        # request = self.app.make('Request')
+    def boot(self):
+    # async def boot(self, router: Route, request: Request, response: Response):
+        router = self.app.make('Route')
+        response = self.app.make(Response)
+        request = self.app.make('Request')
         # All routes joined
         for route in self.app.make('WebRoutes'):
             # print('getting route')
