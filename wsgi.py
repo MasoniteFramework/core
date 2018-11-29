@@ -41,6 +41,7 @@ for provider in container.make('ProvidersConfig').PROVIDERS:
     located_provider = provider()
     located_provider.load_app(container).register()
     if located_provider.wsgi:
+        print(located_provider.wsgi)
         container.make('WSGIProviders').append(located_provider)
     else:
         container.make('Providers').append(located_provider)
@@ -61,3 +62,4 @@ for provider in container.make('Providers'):
 """
 
 application = container.make('WSGI')
+

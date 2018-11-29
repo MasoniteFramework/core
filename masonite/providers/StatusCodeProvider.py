@@ -43,4 +43,5 @@ class StatusCodeProvider(ServiceProvider):
                     'code': request.get_status_code()
                 })
 
-            response.view(rendered_view)
+            return response.view(rendered_view)
+        

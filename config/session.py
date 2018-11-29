@@ -15,4 +15,4 @@ import os
 |
 """
 
-DRIVER = os.getenv('SESSION_DRIVER', 'memory')
+DRIVER = os.getenv('SESSION_DRIVER', 'cookie')

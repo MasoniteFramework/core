@@ -85,7 +85,7 @@ class Request(Extendable):
         Returns:
             bool
         """
-        if self.environ['REQUEST_METHOD'] == 'POST':
+        if self.environ['method'] == 'POST':
             return True
 
         return False
@@ -96,7 +96,7 @@ class Request(Extendable):
         Returns:
             bool
         """
-        if not self.environ['REQUEST_METHOD'] == 'GET':
+        if not self.environ['method'] == 'GET':
             return True
 
         return False
@@ -108,7 +108,7 @@ class Request(Extendable):
             bool
         """
         if self.has('__method'):
-            self.environ['REQUEST_METHOD'] = self.input('__method')
+            self.environ['method'] = self.input('__method')
             return True
 
         return False
@@ -192,10 +192,10 @@ class Request(Extendable):
             self
         """
         self.environ = environ
-        self.method = environ['REQUEST_METHOD']
-        self.path = environ['PATH_INFO']
+        self.method = environ['method']
+        self.path = environ['path']
         self.request_variables = {}
-        self._set_standardized_request_variables(environ['QUERY_STRING'])
+        self._set_standardized_request_variables(environ['query_string'])
 
         if self.has('__method'):
             self.__set_request_method()
@@ -208,6 +208,7 @@ class Request(Extendable):
         Arguments:
             variables {string|dict}
         """
+        variables = bytes(variables).decode('utf-8')
         if isinstance(variables, str):
             variables = parse_qs(variables)
 
@@ -330,7 +331,7 @@ class Request(Extendable):
         Returns:
             string -- returns GET, POST, PUT, etc
         """
-        return self.environ['REQUEST_METHOD']
+        return self.environ['method']
 
     def header(self, key, value=None, http_prefix=None):
         """Set or gets a header depending on if "value" is passed in or not.

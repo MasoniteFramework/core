@@ -13,9 +13,14 @@ class RouteProvider(ServiceProvider):
     def register(self):
         pass
 
+    # def boot(self):
     def boot(self, router: Route, request: Request, response: Response):
+        # router = self.app.make('Route')
+        # response = self.app.make(Response)
+        # request = self.app.make('Request')
         # All routes joined
         for route in self.app.make('WebRoutes'):
+            # print('getting route')
 
             """Make a better match for trailing slashes
             Sometimes a user will end with a trailing slash. Because the user might
@@ -80,6 +85,8 @@ class RouteProvider(ServiceProvider):
                 # Show a helper in the terminal of which route has been visited
                 if application.DEBUG:
                     print(request.get_request_method() + ' Route: ' + router.url)
+
+                print(router.url)
 
                 # If no routes have been found and no middleware has changed the status code
                 if request.is_status(404):

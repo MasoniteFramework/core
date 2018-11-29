@@ -17,7 +17,11 @@ class SessionProvider(ServiceProvider):
         self.app.bind('SessionCookieDriver', SessionCookieDriver)
         self.app.bind('SessionManager', SessionManager(self.app))
 
-    def boot(self, request: Request, view: View, session: SessionManager):
+    async def boot(self, request: Request, view: View, session: SessionManager):
+    # def boot(self):
+        # request = self.app.make('Request')
+        # view = self.app.make('ViewClass')
+        # session = self.app.make('SessionManager')
         self.app.bind('Session', session.driver(self.app.make('SessionConfig').DRIVER))
         self.app.swap(Session, session.driver(self.app.make('SessionConfig').DRIVER))
         request.session = self.app.make('Session')

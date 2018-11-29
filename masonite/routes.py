@@ -29,10 +29,11 @@ class Route:
 
         if environ:
             self.environ = environ
-            self.url = environ['PATH_INFO']
+            self.url = environ['path']
+            
 
             if self.is_not_get_request():
-                self.environ['QUERY_STRING'] = self.set_post_params()
+                self.environ['query_string'] = self.set_post_params()
 
     def load_environ(self, environ):
         """Load the WSGI environ into the class.
@@ -44,10 +45,9 @@ class Route:
             self
         """
         self.environ = environ
-        self.url = environ['PATH_INFO']
-
+        self.url = environ['path']
         if self.is_not_get_request():
-            self.environ['QUERY_STRING'] = self.set_post_params()
+            self.environ['query_string'] = self.set_post_params()
 
         return self
 
@@ -94,7 +94,7 @@ class Route:
         Returns:
             bool
         """
-        if self.environ['REQUEST_METHOD'] == 'POST':
+        if self.environ['method'] == 'POST':
             return True
 
         return False
@@ -105,7 +105,7 @@ class Route:
         Returns:
             bool
         """
-        if not self.environ['REQUEST_METHOD'] == 'GET':
+        if not self.environ['method'] == 'GET':
             return True
 
         return False
