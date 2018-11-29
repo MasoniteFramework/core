@@ -3,6 +3,13 @@
 from wsgi import container
 import asyncio
 
+async def main(providers):
+    for provider in container.make('WSGIProviders'):
+        # print(provider)
+        container.resolve(provider.boot)
+        # provider.boot()
+
+
 class Asgi():
     def __init__(self, scope):
         self.scope = scope
@@ -23,11 +30,7 @@ class Asgi():
         """
 
         try:
-            for provider in container.make('WSGIProviders'):
-                # print(provider)
-                loop.create_task(container.resolve(provider.boot))
-                # provider.boot()
-                # pass
+            await main(container.make('WSGIProviders'))
                 
         except Exception as e:
             container.make('ExceptionHandler').load_exception(e)

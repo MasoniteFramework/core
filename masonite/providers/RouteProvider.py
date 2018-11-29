@@ -86,8 +86,6 @@ class RouteProvider(ServiceProvider):
                 if application.DEBUG:
                     print(request.get_request_method() + ' Route: ' + router.url)
 
-                print(router.url)
-
                 # If no routes have been found and no middleware has changed the status code
                 if request.is_status(404):
 
