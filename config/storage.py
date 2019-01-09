@@ -17,12 +17,15 @@ Different drivers you can use for storing file uploads.
 
 DRIVERS = {
     'disk': {
-        'location': 'storage/uploads'
+        'location': {
+            'uploading': 'uploads/'
+        }
     },
     's3': {
         'client': env('S3_CLIENT', 'AxJz...'),
         'secret': env('S3_SECRET', 'HkZj...'),
         'bucket': env('S3_BUCKET', 's3bucket'),
+        'location': 'http://s3.amazon.com/bucket',
     },
     'rackspace': {
         'username': env('RACKSPACE_USERNAME', 'username'),
