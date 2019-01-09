@@ -65,7 +65,7 @@ class Auth:
         try:
             password_column = self.auth_model.password if hasattr(self.auth_model, 'password') else self.auth_model.__password__
         except AttributeError as e:
-            raise AttributeError('Your model does not have a password column or a  designated __password__ attribute. Set the __password__ attribute to the name of your password column.') from e
+            raise AttributeError('Your model does not have a password column or a designated __password__ attribute. Set the __password__ attribute to the name of your password column.') from e
 
         try:
             # Try to login multiple or statements if given an auth list
