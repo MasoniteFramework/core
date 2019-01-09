@@ -63,7 +63,16 @@ class Auth:
         """
         auth_column = self.auth_model.__auth__
         try:
-            model = self.auth_model.where(auth_column, name).first()
+            # Try to login multiple or statements if given an auth list
+            if isinstance(auth_column, list):
+                model = self.auth_model.where(auth_column[0], name)
+
+                for authentication_column in auth_column[1:]:
+                    model.or_where(authentication_column, name)
+
+                model = model.first()
+            else:
+                model = self.auth_model.where(auth_column, name).first()
 
             if model and bcrypt.checkpw(bytes(password, 'utf-8'), bytes(model.password, 'utf-8')):
                 if not self._once:
