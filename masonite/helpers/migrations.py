@@ -10,7 +10,7 @@ def has_unmigrated_migrations():
     from config.database import DB
     try:
         DB.connection()
-    except:
+    except Exception:
         return False
 
     migration_directory = ['databases/migrations']
