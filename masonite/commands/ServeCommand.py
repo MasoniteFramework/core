@@ -22,6 +22,7 @@ class ServeCommand(Command):
     def handle(self):
         if has_unmigrated_migrations():
             self.comment("\nYou have unmigrated migrations. Run 'craft migrate' to migrate them\n")
+
         if self.option('reload'):
             logger = DefaultLogger(LogLevel.INFO)
 

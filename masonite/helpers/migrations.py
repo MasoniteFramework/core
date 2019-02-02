@@ -1,8 +1,17 @@
 import subprocess
+from masonite.helpers import config
 
 
 def has_unmigrated_migrations():
+    if not config('application.debug'):
+        return False
+
     from wsgi import container
+    from config.database import DB
+    try:
+        DB.connection()
+    except:
+        return False
 
     migration_directory = ['databases/migrations']
     for key, value in container.providers.items():
