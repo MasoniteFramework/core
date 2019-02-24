@@ -308,7 +308,7 @@ class View:
     def __and__(self, status):
         from wsgi import container
         from masonite.request import Request
-        
+
         request = container.make(Request)
         request.status(status)
         return self
