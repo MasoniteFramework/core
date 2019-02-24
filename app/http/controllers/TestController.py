@@ -4,6 +4,7 @@ from masonite.exceptions import DebugException
 from masonite.request import Request
 from masonite import Queue
 from app.jobs.TestJob import TestJob
+from masonite.view import View
 
 
 class TestController:
@@ -22,10 +23,13 @@ class TestController:
         request.status(203)
         return 'test'
 
-    def testing(self):
-        return 'test'
+    def view(self, view: View):
+        return view.render('test', {'test': 'test'}) & 203
 
-    def json_response(self):
+    def testing(self):
+        return 'testering'
+
+    def json_response(self, view: View):
         return {'id': 1}
 
     def post_test(self):

@@ -272,6 +272,9 @@ class TestView:
         assert view.render(
             'admin_test', {'user': user}).rendered_template == 'False'
 
+    def test_uses_and_logic_operator(self):
+        assert self.container.make('ViewClass') & 200
+
     def _is_admin(self, obj):
         return obj.admin == 1
 

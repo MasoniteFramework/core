@@ -7,6 +7,7 @@ ROUTES = [
     Get().route('/test', None).middleware('auth'),
     Get().route('/queue', 'TestController@queue'),
     Redirect('/redirect', 'test'),
+    Get().route('/test/view', 'TestController@view'),
     Get().domain('test').route('/test', None).middleware('auth'),
     Get().domain('test').route('/unit/test', 'TestController@testing').middleware('auth'),
     Get().domain('test').route('/test/route', 'TestController@testing'),
