@@ -10,6 +10,8 @@ from masonite.drivers.CacheDiskDriver import CacheDiskDriver
 from masonite.exceptions import RequiredContainerBindingNotFound, ViewException
 from masonite.managers.CacheManager import CacheManager
 from masonite.view import View
+from masonite.request import Request
+from masonite.testsuite import generate_wsgi
 
 
 class TestView:
@@ -17,6 +19,7 @@ class TestView:
     def setup_method(self):
         self.container = App()
         view = View(self.container)
+        self.container.bind('Request', Request(generate_wsgi()).load_app(self.container))
 
         self.container.bind('View', view.render)
         self.container.bind('ViewClass', view)
