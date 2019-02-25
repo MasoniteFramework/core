@@ -11,3 +11,4 @@ pika
 pypugjs
 coveralls
 flake8
+python-socketio

@@ -26,5 +26,9 @@ DRIVERS = {
     },
     'ably': {
         'secret': env('ABLY_SECRET', 'api:key')
+    },
+    'socketio': {
+        'host': env('SOCKETIO_HOST', 'http://localhost'),
+        'port': env('SOCKETIO_PORT', 5000)
     }
 }
