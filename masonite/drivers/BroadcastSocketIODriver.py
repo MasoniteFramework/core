@@ -19,7 +19,7 @@ class BroadcastSocketioDriver(BroadcastContract, BaseDriver):
         self.config = app.make('BroadcastConfig')
         self.ssl_message = True
 
-    def _connect(self, options):
+    def connect(self, options):
 
         try:
             import socketio
@@ -72,14 +72,14 @@ class BroadcastSocketioDriver(BroadcastContract, BaseDriver):
         options['namespaces'] = kwargs.get('namespaces', None)
         options['socketio_path'] = kwargs.get('socketio_path', 'socket.io')
         options['callback'] = kwargs.get('callback', None)
-        options['handler'] = kwargs.get('handler', None)
+        handler = kwargs.get('handler', None)
 
         # Either emit or send data
-        sio = self._connect(options)
+        sio = self.connect(options)
 
         # Register an event handler.
-        if options['handler'] is not None:
-            sio.on(event, options['handler'])
+        if handler is not None:
+            sio.on(event, handler)
 
         # Send message
         try:

@@ -17,12 +17,22 @@ if os.getenv('SOCKETIO_HOST'):
             self.app.bind('BroadcastSocketioDriver', BroadcastSocketioDriver)
             self.app.bind('BroadcastManager', BroadcastManager().load_container(self.app))
 
+            # Extra options for creating connection
+            kwargs = dict()  # Mock input
+            self.options = dict()
+            self.options['headers'] = kwargs.get('headers', dict())
+            self.options['transports'] = kwargs.get('transports', None)
+            self.options['namespaces'] = kwargs.get('namespaces', None)
+            self.options['socketio_path'] = kwargs.get('socketio_path', 'socket.io')
+            self.options['callback'] = kwargs.get('callback', None)
+            self.options['handler'] = kwargs.get('handler', None)
+
         def test_broadcast_loads_into_container_with_socketio(self):
             self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
 
             assert self.app.make('BroadcastManager')
-            assert self.app.make('Broadcast').channel('event', 'hola') == {'event': 'event', 'data': 'hola'}
-            assert self.app.make('Broadcast').channel(data=('hola')) == {'event': 'event', 'data': 'bonjour'}
+            assert self.app.make('Broadcast').channel('hi', 'hola') == {'event': 'hi', 'data': 'hola'}
+            assert self.app.make('Broadcast').channel(data=('bonjour')) == {'event': 'message', 'data': 'bonjour'}
             assert self.app.make('Broadcast').channel(event='hi') == {'event': 'hi', 'data': ''}
             # assert self.app.make('Broadcast').ssl(True).ssl_message is True
 
@@ -31,3 +41,18 @@ if os.getenv('SOCKETIO_HOST'):
             with pytest.raises(BroadcastException):
                 # Throw in something that the driver is not expecting, like a class
                 self.app.make('Broadcast').channel(event=BroadcastException, data='hello')
+
+        def test_socketio_handles_message_handle(self):
+            self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
+
+            # Test Message Handler
+            def message_handler():
+                print('I like computers!')
+                return None
+
+            assert self.app.make('Broadcast').channel(handler=message_handler())
+
+        def test_socketio_headers(self):
+            self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
+            self.options['headers'] = {'Access-Control-Allow-Origin': '*'}
+            assert self.app.make('Broadcast').channel('event', 'hola') == {'event': 'event', 'data': 'hola'}
