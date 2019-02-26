@@ -28,7 +28,7 @@ DRIVERS = {
         'secret': env('ABLY_SECRET', 'api:key')
     },
     'socketio': {
-        'host': env('SOCKETIO_HOST', 'http://localhost'),
-        'port': env('SOCKETIO_PORT', 5000)
+        'host': env('SOCKETIO_HOST', 'http://127.0.0.1'),
+        'port': env('SOCKETIO_PORT', '5000')
     }
 }

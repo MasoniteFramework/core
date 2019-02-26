@@ -1,6 +1,7 @@
 import os
-
-from masonite.drivers.BroadcastSocketIODriver import BroadcastSocketIODriver
+import pytest
+from masonite.exceptions import BroadcastException
+from masonite.drivers.BroadcastSocketioDriver import BroadcastSocketioDriver
 from masonite.managers.BroadcastManager import BroadcastManager
 from masonite.testsuite.TestSuite import TestSuite
 
@@ -13,15 +14,20 @@ if os.getenv('SOCKETIO_HOST'):
         def setup_method(self):
             self.app = TestSuite().create_container().container
             self.app.bind('BroadcastConfig', broadcast)
-            self.app.bind('BroadcastPusherDriver', BroadcastSocketIODriver)
+            self.app.bind('BroadcastSocketioDriver', BroadcastSocketioDriver)
             self.app.bind('BroadcastManager', BroadcastManager().load_container(self.app))
 
-        def test_broadcast_loads_into_container_with_ably(self):
+        def test_broadcast_loads_into_container_with_socketio(self):
             self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
 
             assert self.app.make('BroadcastManager')
-            assert self.app.make('Broadcast').channel('test-channel', 'from driver') == {'test-channel': 'from driver'}
-            assert self.app.make('Broadcast').channel('test-channel', {'message': 'from driver'}) == {'test-channel': {'message': 'from driver'}}
-            # assert self.app.make('Broadcast').channel({'message': 'dictionary'}) == {'message': 'dictionary'}
-            # assert self.app.make('Broadcast').channel(['channel-1', 'channel-2'], {'message': 'dictionary'}, 'test-event') == {'message': 'dictionary'}
+            assert self.app.make('Broadcast').channel('event', 'hola') == {'event': 'event', 'data': 'hola'}
+            assert self.app.make('Broadcast').channel(data=('hola')) == {'event': 'event', 'data': 'bonjour'}
+            assert self.app.make('Broadcast').channel(event='hi') == {'event': 'hi', 'data': ''}
             # assert self.app.make('Broadcast').ssl(True).ssl_message is True
+
+        def test_socketio_broadcast_exception(self):
+            self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
+            with pytest.raises(BroadcastException):
+                # Throw in something that the driver is not expecting, like a class
+                self.app.make('Broadcast').channel(event=BroadcastException, data='hello')

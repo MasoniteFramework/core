@@ -7,37 +7,7 @@ from masonite.exceptions import DriverLibraryNotFound
 from masonite.app import App
 
 
-class SocketIO:
-    """ Context manager for SocketIO """
-
-    try:
-        import socketio
-    except ImportError:
-        raise DriverLibraryNotFound(
-            'Could not find the "ably" library. Please pip install this library running "pip install socketio"')
-
-    def __init__(self, config):
-        self.config = config
-
-    def __enter__(self, **options):
-        """ Establish connection """
-
-        # Setup Configuration
-        host = self.config['host']
-        port = self.config['port']
-        url = host + str(port)
-
-        # Create and connect to client
-        client = socketio.Client
-        self.sio = client.connect(url=url, **options)
-
-        return self.io
-
-    def __exit__(self):
-        self.sio.disconnect()
-
-
-class BroadcastSocketIODriver(BroadcastContract, BaseDriver):
+class BroadcastSocketioDriver(BroadcastContract, BaseDriver):
     """Class for the Ably Driver."""
 
     def __init__(self, app: App):
@@ -49,10 +19,36 @@ class BroadcastSocketIODriver(BroadcastContract, BaseDriver):
         self.config = app.make('BroadcastConfig')
         self.ssl_message = True
 
+    def _connect(self, options):
+
+        try:
+            import socketio
+        except ImportError:
+            raise DriverLibraryNotFound(
+                'Could not find the "ably" library. Please pip install this library running "pip install socketio"')
+
+        # Setup Configuration
+        host = self.config.DRIVERS['socketio']['host']
+        port = self.config.DRIVERS['socketio']['port']
+
+        if not host.endswith(':'):
+            host = host + ':'
+        url = host + str(port)
+
+        # Create and connect to client
+        sio = socketio.Client()
+        sio.connect(
+            url=url,
+            headers=options['headers'],
+            transports=options['transports'],
+            namespaces=options['namespaces'],
+            socketio_path=options['socketio_path'])
+        return sio
+
     def ssl(self, boolean):
         pass
 
-    def channel(self, event=None, data='', **kwargs):
+    def channel(self, event='message', data='', **kwargs):
         """Specify which channel(s) you want to send information to.
 
         Arguments:
@@ -73,20 +69,23 @@ class BroadcastSocketIODriver(BroadcastContract, BaseDriver):
         options = dict()
         options['headers'] = kwargs.get('headers', dict())
         options['transports'] = kwargs.get('transports', None)
-        options['namespaces'] =  kwargs.get('namespaces', None)
-        options['socketio_path']= kwargs.get('socketio_path', 'socket.io')
+        options['namespaces'] = kwargs.get('namespaces', None)
+        options['socketio_path'] = kwargs.get('socketio_path', 'socket.io')
         options['callback'] = kwargs.get('callback', None)
+        options['handler'] = kwargs.get('handler', None)
 
         # Either emit or send data
-        with SocketIO(self.config, options) as sio:
-            if options['handler'] is not None:
-                sio.on(event, options['handler'])
-            
-            if event is not None:
-                sio.emit(event, data, options['namespaces'], options['callback'])
-            elif event is None:
-                sio.send(data, options['namespaces'], options['callback'])
-            else:
-                raise BroadcastException
+        sio = self._connect(options)
 
-        return {'event': event, 'data': data}
+        # Register an event handler.
+        if options['handler'] is not None:
+            sio.on(event, options['handler'])
+
+        # Send message
+        try:
+            sio.emit(event, data, options['namespaces'], options['callback'])
+            sio.disconnect()
+            return {'event': event, 'data': data}
+        except Exception:
+            sio.disconnect()
+            raise BroadcastException
