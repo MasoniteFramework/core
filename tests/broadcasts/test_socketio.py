@@ -18,14 +18,12 @@ if os.getenv('SOCKETIO_HOST'):
             self.app.bind('BroadcastManager', BroadcastManager().load_container(self.app))
 
             # Extra options for creating connection
-            kwargs = dict()  # Mock input
             self.options = dict()
-            self.options['headers'] = kwargs.get('headers', dict())
-            self.options['transports'] = kwargs.get('transports', None)
-            self.options['namespaces'] = kwargs.get('namespaces', None)
-            self.options['socketio_path'] = kwargs.get('socketio_path', 'socket.io')
-            self.options['callback'] = kwargs.get('callback', None)
-            self.options['handler'] = kwargs.get('handler', None)
+            self.options['headers'] = dict()
+            self.options['transports'] = None
+            self.options['namespaces'] = None
+            self.options['socketio_path'] = 'socket.io'
+            self.options['callback'] = None
 
         def test_broadcast_loads_into_container_with_socketio(self):
             self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
@@ -55,4 +53,4 @@ if os.getenv('SOCKETIO_HOST'):
         def test_socketio_headers(self):
             self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
             self.options['headers'] = {'Access-Control-Allow-Origin': '*'}
-            assert self.app.make('Broadcast').channel('event', 'hola') == {'event': 'event', 'data': 'hola'}
+            assert self.app.make('Broadcast').channel(event='event', data='hola', **self.options) == {'event': 'event', 'data': 'hola'}
