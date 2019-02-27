@@ -9,7 +9,7 @@ from config import broadcast
 
 if os.getenv('SOCKETIO_HOST'):
 
-    class TestSockets:
+    class TestSocketIO:
 
         def setup_method(self):
             self.app = TestSuite().create_container().container
@@ -35,10 +35,10 @@ if os.getenv('SOCKETIO_HOST'):
             # assert self.app.make('Broadcast').ssl(True).ssl_message is True
 
         def test_socketio_broadcast_exception(self):
-            self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
             with pytest.raises(BroadcastException):
+                self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))
                 # Throw in something that the driver is not expecting, like a class
-                self.app.make('Broadcast').channel(event=BroadcastException, data='hello')
+                self.app.make('Broadcast').channel(event=TypeError, data='hello')
 
         def test_socketio_handles_message_handle(self):
             self.app.bind('Broadcast', self.app.make('BroadcastManager').driver('socketio'))

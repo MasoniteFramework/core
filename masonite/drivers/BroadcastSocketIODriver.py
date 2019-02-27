@@ -1,17 +1,15 @@
-"""Module for using the Ably websocket driver."""
-import socketio
-from masonite.exceptions import BroadcastException
+"""Module for using the Socket.IO websocket driver."""
+from masonite.app import App
 from masonite.contracts.BroadcastContract import BroadcastContract
 from masonite.drivers.BaseDriver import BaseDriver
-from masonite.exceptions import DriverLibraryNotFound
-from masonite.app import App
+from masonite.exceptions import BroadcastException, DriverLibraryNotFound
 
 
 class BroadcastSocketioDriver(BroadcastContract, BaseDriver):
-    """Class for the Ably Driver."""
+    """Class for the Socket.IO Driver."""
 
     def __init__(self, app: App):
-        """Ably driver constructor.
+        """Socket.IO driver constructor.
 
         Arguments:
             BroadcastConfig {config.broadcast} -- Broadcast configuration setting.
@@ -20,12 +18,17 @@ class BroadcastSocketioDriver(BroadcastContract, BaseDriver):
         self.ssl_message = True
 
     def connect(self, options):
+        """Create Socket.IO connection
+
+        Arguements:
+            options {dict} -- Settings for Socket.IO connection
+        """
 
         try:
             import socketio
         except ImportError:
             raise DriverLibraryNotFound(
-                'Could not find the "ably" library. Please pip install this library running "pip install socketio"')
+                'Could not find the "socketio" library. Please pip install this library running "pip install socketio"')
 
         # Setup Configuration
         host = self.config.DRIVERS['socketio']['host']
@@ -46,20 +49,25 @@ class BroadcastSocketioDriver(BroadcastContract, BaseDriver):
         return sio
 
     def ssl(self, boolean):
+        """ Socket.IO does not care about ssl """
         pass
 
     def channel(self, event='message', data='', **kwargs):
         """Specify which channel(s) you want to send information to.
 
-        Arguments:
-            channels {string|list} -- Can be a string for the channel or a list of strings for the channels.
-            message {string} -- The message you want to send to the channel(s)
-
         Keyword Arguments:
-            event {string} -- The event you want broadcasted along with your data. (default: {'base-event'})
+            event {string} -- The event you want broadcasted along with your data. (default: {'event'})
+            data {string} -- Data that you want to push
+            headers {dict} -- Custom set HTTP headers for websockets
+            transports {string} -- The list of allowed transports. Valid transports are 'polling' and 'websocket'. (default: {'websockets})
+            namespaces {string} --The Socket.IO namespace for the event. If this argument is omitted the event is emitted to the default namespace.
+            callback {function} -- If given, this function will be called to acknowledge the the client has received the message.
+            socketio_path {string} -- The endpoint where the Socket.IO server is installed.
+            handler {function} -- The function that should be invoked to handle the event.
 
         Raises:
-            DriverLibraryNotFound -- Thrown when ably is not installed.
+            DriverLibraryNotFound -- Thrown when socketio is not installed.
+            BroadcastException -- Thrown when socket.io fails
 
         Returns:
             string -- Returns the message sent.
@@ -77,7 +85,7 @@ class BroadcastSocketioDriver(BroadcastContract, BaseDriver):
         # Either emit or send data
         sio = self.connect(options)
 
-        # Register an event handler.
+        # Register an event handler if one exists
         if handler is not None:
             sio.on(event, handler)
 
