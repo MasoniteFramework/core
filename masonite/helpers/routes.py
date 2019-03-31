@@ -3,6 +3,7 @@
 import re
 from masonite.helpers import deprecated
 
+
 def flatten_routes(routes):
     """Flatten the grouped routes into a single list of routes.
 
