@@ -37,6 +37,6 @@ class HelpersProvider(ServiceProvider):
                 'auth': request.user,
                 'request_method': set_request_method,
                 'route': request.route,
-                'back': lambda location=request().path: back(location)
+                'back': lambda location=request.path: back(location)
             }
         )
