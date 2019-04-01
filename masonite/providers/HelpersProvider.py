@@ -5,6 +5,7 @@ import os
 
 from masonite.exception_handler import DD, DumpHandler
 from masonite.helpers.view_helpers import back, set_request_method
+from masonite.helpers.sign import sign, encrypt, unsign, decrypt
 from masonite.provider import ServiceProvider
 from masonite.view import View
 from masonite.request import Request
@@ -37,6 +38,10 @@ class HelpersProvider(ServiceProvider):
                 'auth': request.user,
                 'request_method': set_request_method,
                 'route': request.route,
-                'back': back
+                'back': back,
+                'sign': sign, 
+                'encrypt': encrypt, 
+                'unsign': unsign, 
+                'decrypt': decrypt
             }
         )
