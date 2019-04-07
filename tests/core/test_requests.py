@@ -17,9 +17,9 @@ from masonite.testsuite.TestSuite import TestSuite, generate_wsgi
 
 WEB_ROUTES = flatten_routes([
     Get('/test', 'Controller@show').name('test'),
-    RouteGroup('/a', [
+    RouteGroup([
         Get('/account', 'Controller@show').name('a_account'),
-    ])
+    ], prefix="/a")
 ])
 
 wsgi_request = generate_wsgi()
@@ -256,8 +256,8 @@ class TestRequest(unittest.TestCase):
         app = App()
         app.bind('Request', self.request)
         app.bind('WebRoutes', [
-            Get('/test/url', None).name('test.url'),
-            Get('/test/url/@id', None).name('test.id')
+            Get('/test/url', 'TestController@show').name('test.url'),
+            Get('/test/url/@id', 'TestController@show').name('test.id')
         ])
         request = app.make('Request').load_app(app)
 
@@ -294,8 +294,8 @@ class TestRequest(unittest.TestCase):
         app = App()
         app.bind('Request', self.request)
         app.bind('WebRoutes', [
-            Get('/test/url', None).name('test.url'),
-            Get('/test/url/@id', None).name('test.id')
+            Get('/test/url', 'TestController@show').name('test.url'),
+            Get('/test/url/@id', 'TestController@show').name('test.id')
         ])
         request = app.make('Request').load_app(app)
 
@@ -525,23 +525,23 @@ class TestRequest(unittest.TestCase):
         app = App()
         app.bind('Request', self.request)
         app.bind('WebRoutes', [
-            Get('/test/url', None).name('test.url'),
-            Get('/test/url/@id', None).name('test.id')
+            Get('/test/url', 'TestController@show').name('test.url'),
+            Get('/test/url/@id', 'TestController@show').name('test.id')
         ])
         request = app.make('Request').load_app(app)
 
         request.path = '/test/url'
-        assert request.is_named_route('test.url')
+        self.assertTrue(request.is_named_route('test.url'))
 
         request.path = '/test/url/1'
-        assert request.is_named_route('test.id', {'id': 1})
+        self.assertTrue(request.is_named_route('test.id', {'id': 1}))
 
     def test_route_exists(self):
         app = App()
         app.bind('Request', self.request)
         app.bind('WebRoutes', [
-            Get('/test/url', None).name('test.url'),
-            Get('/test/url/@id', None).name('test.id')
+            Get('/test/url', 'TestController@show').name('test.url'),
+            Get('/test/url/@id', 'TestController@show').name('test.id')
         ])
         request = app.make('Request').load_app(app)
 
