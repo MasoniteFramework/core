@@ -2,7 +2,7 @@ from masonite.routes import Route
 from masonite.request import Request
 from masonite.app import App
 from masonite.routes import Get, Head, Post, Match, Put, Patch, Delete, Connect, Options, Trace, RouteGroup, Redirect
-from masonite.helpers.routes import group, flatten_routes
+from masonite.helpers.routes import flatten_routes
 from masonite.testsuite.TestSuite import generate_wsgi
 from masonite.exceptions import InvalidRouteCompileException, RouteException
 from app.http.controllers.subdirectory.SubController import SubController
@@ -115,10 +115,10 @@ class TestRoutes(unittest.TestCase):
             self.assertEqual(Match('get').route('test/url', 'TestController@show').method_type, ['GET', 'POST'])
 
     def test_group_route(self):
-        routes = group('/example', [
+        routes = RouteGroup([
             Get().route('/test/1', 'TestController@show'),
             Get().route('/test/2', 'TestController@show')
-        ])
+        ], prefix="/example")
 
         self.assertEqual(routes[0].route_url, '/example/test/1')
         self.assertEqual(routes[1].route_url, '/example/test/2')

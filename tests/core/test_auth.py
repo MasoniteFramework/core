@@ -1,17 +1,18 @@
-import time
 import datetime
-
-from masonite.view import View
-from masonite.auth import Auth
-from masonite.request import Request
-from masonite.testsuite.TestSuite import generate_wsgi
-from masonite.auth import MustVerifyEmail
-from masonite.app import App
-from masonite.auth import Sign
-from masonite.helpers.routes import get
-from masonite.snippets.auth.controllers.ConfirmController import ConfirmController
-from config import application
+import time
 import unittest
+
+from masonite.app import App
+from masonite.auth import Auth, MustVerifyEmail, Sign
+from masonite.request import Request
+from masonite.routes import Get
+from masonite.snippets.auth.controllers.ConfirmController import \
+    ConfirmController
+from masonite.testsuite.TestSuite import generate_wsgi
+from masonite.view import View
+
+from config import application
+
 
 class MockUser():
 
@@ -126,7 +127,7 @@ class TestAuth(unittest.TestCase):
         self.app.make('Request').load_app(self.app)
 
         # Create the route
-        route = get('/email/verify/@id', ConfirmController.confirm_email)
+        route = Get('/email/verify/@id', ConfirmController.confirm_email)
 
         ConfirmController.get_user = self.get_user
 
@@ -153,7 +154,7 @@ class TestAuth(unittest.TestCase):
         self.app.make('Request').load_app(self.app)
 
         # Create the route
-        route = get('/email/verify/@id', ConfirmController.confirm_email)
+        route = Get('/email/verify/@id', ConfirmController.confirm_email)
 
         ConfirmController.get_user = self.get_user
 

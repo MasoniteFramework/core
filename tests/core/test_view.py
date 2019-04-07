@@ -178,7 +178,8 @@ class TestView(unittest.TestCase):
 
         self.assertEqual(view('test_cache', {'test': 'test'}).cache_for(1, 'second').rendered_template, 'test')
 
-        self.assertEqual(open(glob.glob('bootstrap/cache/test_cache:*')[0]).read(), 'test')
+        with open(glob.glob('bootstrap/cache/test_cache:*')[0]) as file:
+            self.assertEqual(file.read(), 'test')
 
         time.sleep(2)
 
@@ -186,13 +187,15 @@ class TestView(unittest.TestCase):
 
         time.sleep(2)
 
-        self.assertEqual(open(glob.glob('bootstrap/cache/test_cache:*')[0]).read(), 'macho')
+        with open(glob.glob('bootstrap/cache/test_cache:*')[0]) as file:
+            self.assertEqual(file.read(), 'macho')
 
         self.assertEqual(view('test_cache', {'test': 'macho'}).cache_for(1, 'second').rendered_template, 'macho')
 
         time.sleep(1)
 
-        self.assertEqual(open(glob.glob('bootstrap/cache/test_cache:*')[0]).read(), 'macho')
+        with open(glob.glob('bootstrap/cache/test_cache:*')[0]) as file:
+            self.assertEqual(file.read(), 'macho')
 
         self.assertEqual(view('test_cache', {'test': 'macho'}).cache_for('1', 'second').rendered_template, 'macho')
 
