@@ -151,7 +151,7 @@ class BaseHttpRoute:
             self
         """
         self._find_controller(output)
-        if not route.startswith('/'):
+        if route[0] != '/':
             route = '/' + route
         self.route_url = route
         self._compiled_url = self.compile_route_to_regex()
@@ -174,7 +174,7 @@ class BaseHttpRoute:
         if isinstance(controller, str):
             mod = controller.split('@')
             # If trying to get an absolute path via a string
-            if mod[0].startswith('/'):
+            if mod[0][0] == '/':
                 self.module_location = '.'.join(
                     mod[0].replace('/', '').split('.')[0:-1])
             elif '.' in mod[0]:
