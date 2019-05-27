@@ -861,7 +861,7 @@ class Request(Extendable):
                     compiled_url += url + '/'
 
         # The loop isn't perfect and may have an unwanted trailing slash
-        if compiled_url.endswith('/') and not route.endswith('/'):
+        if compiled_url[-1] == '/' and route[-1] != '/':
             compiled_url = compiled_url[:-1]
 
         # The loop isn't perfect and may have 2 slashes next to eachother
