@@ -207,15 +207,15 @@ class App:
             #    'Sentry*Hook'
             for key, value in self.providers.items():
                 if isinstance(key, str):
-                    if search.startswith('*'):
-                        if key.endswith(search.split('*')[1]):
+                    if search[0] == '*':
+                        if key[-1] == search.split('*')[1]:
                             providers.update({key: value})
-                    elif search.endswith('*'):
-                        if key.startswith(search.split('*')[0]):
+                    elif search[-1] == '*':
+                        if key[0] == search.split('*')[0]:
                             providers.update({key: value})
                     elif '*' in search:
                         split_search = search.split('*')
-                        if key.startswith(split_search[0]) and key.endswith(split_search[1]):
+                        if key[0] == split_search[0] and key[-1] == split_search[1]:
                             providers.update({key: value})
                     else:
                         raise AttributeError(
