@@ -149,10 +149,19 @@ class BaseHttpRoute:
 
         Returns:
             self
+
+        Raises:
+            RouteException -- Thrown when the incoming route is an empty string.
         """
+        # Checked to make sure the route is not empty
+        try:
+            if route[0] != '/':
+                route = '/' + route
+        except IndexError:
+            raise RouteException("Undefined Route")
+
         self._find_controller(output)
-        if route[0] != '/':
-            route = '/' + route
+
         self.route_url = route
         self._compiled_url = self.compile_route_to_regex()
         return self

@@ -247,6 +247,9 @@ class TestRoutes(unittest.TestCase):
         route = Redirect('/test1', '/test3', methods=['POST', 'PUT'])
         self.assertEqual(route.method_type, ['POST', 'PUT'])
 
+    def test_route_url_is_not_empty(self):
+        with self.assertRaises(RouteException):
+            Get().route('', None)
 
 class WsgiInputTestClass:
 
