@@ -16,7 +16,7 @@ from urllib.parse import parse_qsl
 import tldextract
 from cryptography.fernet import InvalidToken
 
-from config import application
+
 from masonite.auth.Sign import Sign
 from masonite.exceptions import InvalidHTTPStatusCode, RouteException
 from masonite.helpers import dot, clean_request_input, Dot as DictDot
@@ -586,14 +586,14 @@ class Request(Extendable):
 
         if 'HTTP_COOKIE' in self.environ and self.environ['HTTP_COOKIE']:
 
-            cookies = self.environ['HTTP_COOKIE'].split(';')
-            for index, cookie in enumerate(cookies):
+            request_cookies = self.environ['HTTP_COOKIE'].split(';')
+            for index, cookie in enumerate(request_cookies):
                 if cookie.startswith(key):
                     # remove that cookie
-                    del cookies[index]
+                    del request_cookies[index]
 
             # put string back together
-            self.environ['HTTP_COOKIE'] = ';'.join(cookies)
+            self.environ['HTTP_COOKIE'] = ';'.join(request_cookies)
             return True
         return False
 
@@ -737,6 +737,7 @@ class Request(Extendable):
         Returns:
             masonite.routes.Route|None -- Returns None if the route cannot be found.
         """
+        from config import application
         if full:
             route = application.URL + self._get_named_route(name, params)
         else:
