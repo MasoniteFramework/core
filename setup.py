@@ -40,8 +40,8 @@ setup(
         'bcrypt>=3.1,<3.2',
         'cleo>=0.6,<0.7',
         'cryptography>=2.3,<2.4',
-        'hupper>=1.0,<2.0'
-        'Jinja2>=2,<3',
+        'hupper>=1.0,<2.0',
+        'jinja2>=2,<3',
         'masonite-events>=1.0,<2',
         'masonite-scheduler>=1.0.0,<=1.0.99',
         'masonite-validation>=2.2.0,<=2.2.99',
