@@ -60,3 +60,6 @@ CORS = {
     "Access-Control-Max-Age": "3600",
     "Access-Control-Allow-Credentials": "true"
 }
+
+"""SSL Redirect."""
+SSLRedirect = True
