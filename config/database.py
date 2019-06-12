@@ -1,4 +1,5 @@
 """Database Settings."""
+
 import logging
 
 from masonite import env
@@ -25,7 +26,7 @@ DATABASES = {
     'default': env('DB_CONNECTION', 'sqlite'),
     'sqlite': {
         'driver': 'sqlite',
-        'database': 'masonite.db',
+        'database': env('DB_DATABASE', 'masonite.db'),
         'log_queries': env('DB_LOG'),
         'prefix': ''
     },
