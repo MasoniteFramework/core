@@ -36,4 +36,4 @@ class DevCommand(Command):
 
         # Command did nothing
         if not self.option('test') and not self.option('lint') and not self.option('clean'):
-            print('No actions selected')
+            self.info('No actions selected')
