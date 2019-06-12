@@ -2,7 +2,7 @@
 
 from masonite.auth import Auth
 from masonite.autoload import Autoload
-from masonite.commands import (AuthCommand, CommandCommand, ControllerCommand,
+from masonite.commands import (AuthCommand, CommandCommand, ControllerCommand, DevCommand,
                                DownCommand, InfoCommand, InstallCommand,
                                JobCommand, KeyCommand, MakeMigrationCommand,
                                MiddlewareCommand, MigrateCommand,
@@ -64,6 +64,7 @@ class AppProvider(ServiceProvider):
         self.app.bind('MasoniteAuthCommand', AuthCommand())
         self.app.bind('MasoniteCommandCommand', CommandCommand())
         self.app.bind('MasoniteControllerCommand', ControllerCommand())
+        self.app.bind('MasoniteDevCommand', DevCommand())
         self.app.bind('MasoniteDownCommand', DownCommand())
         self.app.bind('MasoniteInfoCommand', InfoCommand())
         self.app.bind('MasoniteInstallCommand', InstallCommand())

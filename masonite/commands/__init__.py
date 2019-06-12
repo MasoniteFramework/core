@@ -2,6 +2,7 @@ from .AuthCommand import AuthCommand
 from .BaseScaffoldCommand import BaseScaffoldCommand
 from .CommandCommand import CommandCommand
 from .ControllerCommand import ControllerCommand
+from .DevCommand import DevCommand
 from .DownCommand import DownCommand
 from .InfoCommand import InfoCommand
 from .InstallCommand import InstallCommand
