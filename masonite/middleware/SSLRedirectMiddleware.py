@@ -3,7 +3,7 @@
 from masonite.request import Request
 
 
-class SecureHeadersMiddleware:
+class SSLRedirectMiddleware:
     """SSL Redirect Middleware."""
 
     def __init__(self, request: Request):
