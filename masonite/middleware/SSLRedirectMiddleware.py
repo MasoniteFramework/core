@@ -19,7 +19,7 @@ class SSLRedirectMiddleware:
         from config import middleware
         if middleware.SSLRedirect:
             host = request.environ['HOST']
-            url = 'https://{}{}'.format(self.request.path)
+            url = 'https://{}{}'.format(host, self.request.path)
             return self.request.redirect(url)
 
     def after(self):
