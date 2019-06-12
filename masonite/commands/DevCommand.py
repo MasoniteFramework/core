@@ -1,6 +1,4 @@
 """Dev Command."""
-import os
-import shutil
 import subprocess
 
 from cleo import Command
