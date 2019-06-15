@@ -249,7 +249,7 @@ class TestRouteTree(unittest.TestCase):
 
         rts = RouteTree(max_depth=1)
         rts.add(':*path', 'foo')
-        self.assertRaises(archer.RouteError, rts.match, 'foo/bar/baz')
+        self.assertRaises(RouteTreeError, rts.match, 'foo/bar/baz')
 
         # Changes max_depth
         rts.add(':var/bar/baz', 'bar')

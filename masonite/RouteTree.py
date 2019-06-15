@@ -54,12 +54,12 @@ class RouteTree:
 
     _VAR_ANY_BREAK = ":*break"
 
-    def __init__(self, max_depth: int = 40) -> None:
+    def __init__(self, max_depth: int = 40):
         self._max_depth_custom = max_depth  # The maximum URL depth
         self._routes = {}
         self._max_depth = 0
 
-    def _deconstruct_url(self, url: str) -> List[str]:
+    def _deconstruct_url(self, url: str):
         """
         Split a regular URL into parts
 
@@ -141,7 +141,7 @@ class RouteTree:
             anything=route_match.anything,
         )
 
-    def match(self, url: str):
+    def match(self, url):
         """
         Match a URL to a registered pattern.
 
@@ -191,7 +191,7 @@ class RouteTree:
 
             curr_partial_routes = curr_partial_routes.setdefault(part, {})
 
-        curr_partial_routes[self._ROUTE_NODE] = Route(key_parts=curr_key_parts, anything=anything)
+        curr_partial_routes[self._ROUTE_NODE] = RouteNode(key_parts=curr_key_parts, anything=anything)
 
         self._max_depth = max(self._max_depth, self.depth_of(parts))
 
@@ -226,8 +226,7 @@ class RouteTree:
         """
         return len(parts) - 1
 
-    @classmethod
-    def _unwrap(cls, variable_part):
+    def _unwrap(self, variable_parts):
         """
         Yield URL parts. The given parts are usually in reverse order.
 
@@ -243,11 +242,11 @@ class RouteTree:
         while curr_parts:
             curr_parts, (var_type, part) = curr_parts
 
-            if var_type == cls._VAR_ANY_NODE:
+            if var_type == self._VAR_ANY_NODE:
                 var_any.append(part)
                 continue
 
-            if var_type == cls._VAR_ANY_BREAK:
+            if var_type == self._VAR_ANY_BREAK:
                 if var_any:
                     yield tuple(reversed(var_any))
                     var_any.clear()
