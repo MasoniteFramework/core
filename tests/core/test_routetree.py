@@ -173,95 +173,41 @@ class TestRouteTree(unittest.TestCase):
         self.assertDictEqual(router.params, {})
         self.assertEqual(router.route, 'foo')
 
-    def test_match_var_any(self):
-        """
-        Should match unknown number of URL parts
-        """
-        self.tree.add(':*path', 'foo')
-        self.tree.add('static/:*path', 'bar')
-        self.tree.add('static/:*path/sub-path', 'baz')
-        self.tree.add('static/:*path/sub-path/:file_name', 'qux')
-
-        router = self.tree.match('foo/bar/baz')
-        self.assertDictEqual(router.params, {'path': ('foo', 'bar', 'baz')})
-        self.assertEqual(router.route, 'foo')
-
-        router = self.tree.match('static/foo/bar/baz')
-        self.assertDictEqual(router.params, {'path': ('foo', 'bar', 'baz')})
-        self.assertEqual(router.route, 'bar')
-
-        router = self.tree.match('static/foo/bar/baz/sub-path')
-        self.assertDictEqual(router.params, {'path': ('foo', 'bar', 'baz')})
-        self.assertEqual(router.route, 'baz')
-
-        router = self.tree.match('static/foo/bar/baz/sub-path/catz.jpg')
-        self.assertDictEqual(router.params, {
-            'file_name': 'catz.jpg',
-            'path': ('foo', 'bar', 'baz')})
-        self.assertEqual(router.route, 'qux')
-
-    def test_match_var_any_many(self):
-        """
-        Should match multiple any vars
-        """
-        self.tree.add(':*path/:*path_a/:*patch_b', 'foo')
-        router = self.tree.match('foo/bar/baz/qux')
-        self.assertDictEqual(router.params, {
-            'patch_b': ('baz', 'qux'), 'path': ('foo',), 'path_a': ('bar',)})
-        self.assertEqual(router.route, 'foo')
-
-    def test_match_var_any_precedence(self):
-        """
-        Should match in order: static > var > any-var
-        """
-        self.tree.add(':var1/:*path/:var2', 'foo')
-        self.tree.add('static1/:*path/static2', 'bar')
-        self.tree.add(':var1/:*path/static2', 'baz')
-        self.tree.add('static2/:var1/:*path/:var2/:*path2', 'qux')
-
-        # Never matches, since foo takes precedence
-        self.tree.add(':*path/:var1/:*path2', 'bad')
-
-        router = self.tree.match('foo/bar/baz/qux')
-        self.assertDictEqual(router.params, {'path': ('bar', 'baz'), 'var2': 'qux', 'var1': 'foo'})
-        self.assertEqual(router.route, 'foo')
-
-        router = self.tree.match('static1/bar/baz/static2')
-        self.assertDictEqual(router.params, {'path': ('bar', 'baz')})
-        self.assertEqual(router.route, 'bar')
-
-        router = self.tree.match('foo/bar/baz/static2')
-        self.assertDictEqual(router.params, {'var1': 'foo', 'path': ('bar', 'baz')})
-        self.assertEqual(router.route, 'baz')
-
-        router = self.tree.match('static2/foo/bar/baz/qux')
-        self.assertDictEqual(router.params, {
-            'var1': 'foo', 'path': ('bar',), 'var2': 'baz', 'path2': ('qux',)})
-        self.assertEqual(router.route, 'qux')
-
     def test_max_depth(self):
         """
         Should not match on max_depth < url length
         """
         rts = RouteTree(max_depth=3)
-        rts.add(':*path', 'foo')
+        rts.add(':foo/:bar:/baz', 'foo')
         self.assertEqual(rts.match('foo/bar/baz').route, 'foo')
 
         rts = RouteTree(max_depth=1)
-        rts.add(':*path', 'foo')
+        rts.add(':baz', 'foo')
         self.assertRaises(RouteTreeError, rts.match, 'foo/bar/baz')
 
         # Changes max_depth
         rts.add(':var/bar/baz', 'bar')
         self.assertEqual(rts.match('foo/bar/baz').route, 'bar')
 
-    def test_match_custom_separator(self):
+    def test_match_custom_wildcard(self):
         """
-        Should match an url to a registered pattern given a custom separator
+        Should match an url to a registered pattern given
+        a custom wildcard separator
         """
-        self.tree.separator = '.'
-        self.tree.add(':foo.:bar.api.:baz', 'foo')
-        router = self.tree.match('foo.bar.api.baz')
+        # Define in init method
+        tree = RouteTree(wildcard="@")
+        tree.add('@foo/@bar/api/@baz', 'foo')
+        router = tree.match('foo/bar/api/baz')
+        self.assertDictEqual(
+            router.params,
+            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})
+        self.assertEqual(router.route, 'foo')
+
+        # Define as a property
+        tree = RouteTree()
+        tree.wildcard = "@"
+        tree.add('@foo/@bar/api/@baz', 'foo')
+        router = tree.match('foo/bar/api/baz')
         self.assertDictEqual(
             router.params,
             {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})

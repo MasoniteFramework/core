@@ -226,47 +226,27 @@ class RouteTree:
             {int} -- Depth of the list
         """
         return len(parts) - 1
-
-    def _unwrap(self, variable_parts):
+    
+    @staticmethod
+    def _unwrap(variable_parts):
         """
-        Yield URL parts. The given parts are usually in reverse order.
+        Generator which yields the URL parts. 
+        The given parts are usually in reverse order.
 
         Arguments:
-            variable_parts {VariablePartsType} -- parts of url
+            variable_parts {tuple} -- parts of url
         
         Returns:
-            variable_parts {VariablePartsType} -- parts of url 
+            variable_parts {string} -- url part
         """
         curr_parts = variable_parts
-        var_any = list()
 
         while curr_parts:
             curr_parts, (var_type, part) = curr_parts
-
-            if var_type == self._VAR_ANY_NODE:
-                var_any.append(part)
-                continue
-
-            if var_type == self._VAR_ANY_BREAK:
-                if var_any:
-                    yield tuple(reversed(var_any))
-                    var_any.clear()
-
-                var_any.append(part)
-                continue
-
-            if var_any:
-                yield tuple(reversed(var_any))
-                var_any.clear()
-                yield part
-                continue
-
             yield part
 
-        if var_any:
-            yield tuple(reversed(var_any))
-
-    def normalize_url(self, url: str) -> str:
+    @staticmethod
+    def normalize_url(url: str) -> str:
         """
         Remove leading and trailing slashes from a URL
 
