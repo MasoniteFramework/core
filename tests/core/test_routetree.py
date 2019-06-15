@@ -254,3 +254,15 @@ class TestRouteTree(unittest.TestCase):
         # Changes max_depth
         rts.add(':var/bar/baz', 'bar')
         self.assertEqual(rts.match('foo/bar/baz').route, 'bar')
+
+    def test_match_custom_separator(self):
+        """
+        Should match an url to a registered pattern given a custom separator
+        """
+        self.tree.separator = '.'
+        self.tree.add(':foo.:bar.api.:baz', 'foo')
+        router = self.tree.match('foo.bar.api.baz')
+        self.assertDictEqual(
+            router.params,
+            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})
+        self.assertEqual(router.route, 'foo')

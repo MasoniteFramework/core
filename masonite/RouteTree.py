@@ -52,12 +52,13 @@ class RouteTree:
 
     _VAR_ANY_BREAK = ":*break"
 
-    __slots__ = ("_max_depth_custom", "_routes", "_max_depth")
+    __slots__ = ("_max_depth_custom", "_routes", "_max_depth", "_separator")
 
     def __init__(self, max_depth: int = 40):
         self._max_depth_custom = max_depth  # The maximum URL depth
         self._routes = {}
         self._max_depth = 0
+        self._separator = "/"
 
     def _deconstruct_url(self, url: str):
         """
@@ -73,7 +74,7 @@ class RouteTree:
             {masonite.exceptions.RouteTreeError} -- If the depth of the URL exceeds
             the max depth of the deepest registered pattern.
         """
-        parts = url.split("/", self._max_depth + 1)
+        parts = url.split(self._separator, self._max_depth + 1)
 
         if self.depth_of(parts) > self._max_depth:
             raise RouteTreeError("No match")
@@ -165,7 +166,7 @@ class RouteTree:
         retrieving. A dict with methods and callbacks, for example. Anything really.
 
         Registration order does not matter.
-        Adding a URL first or last makes no difference.
+        Adding a URL separator first or last makes no difference.
 
         Arguments:
             url {string} -- URL
@@ -175,7 +176,7 @@ class RouteTree:
             None
         """
         url = self.normalize_url(url)
-        parts = url.split("/")
+        parts = url.split(self._separator)
         curr_partial_routes = self._routes
         curr_key_parts = list()
 
@@ -265,8 +266,7 @@ class RouteTree:
         if var_any:
             yield tuple(reversed(var_any))
 
-    @staticmethod
-    def normalize_url(url: str) -> str:
+    def normalize_url(self, url: str) -> str:
         """
         Remove leading and trailing slashes from a URL
 
@@ -274,12 +274,21 @@ class RouteTree:
             url {string} -- URL
         
         Return:
-            url {string} -- URL with no leading and trailing slashes
+            url {string} -- URL with no leading and trailing 
+                separator literals (default slashes)
         """
-        if url.startswith("/"):
+        if url.startswith(self._separator):
             url = url[1:]
 
-        if url.endswith("/"):
+        if url.endswith(self._separator):
             url = url[:-1]
 
         return url
+
+    @property
+    def separator(self):
+        return self._separator
+
+    @separator.setter
+    def separator(self, literal):
+        self._separator = literal
