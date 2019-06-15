@@ -40,27 +40,25 @@ class RouteTree:
     Thread safety: adding routes is not thread-safe,
     it should be done on import time, everything else is.
 
-    URL matcher supports ``:var`` for matching dynamic
-    path parts and ``:*var`` for matching one or more parts.
+    URL matcher supports ``:var`` for matching dynamic path parts 
 
-    Path parts are matched in the following order: ``static > var > any-var``.
+    Path parts are matched in the following order: ``static > var``.
     """
 
-    _VAR_NODE = ":var"
-    _VAR_ANY_NODE = ":*var"
-    _ROUTE_NODE = ":route"
+    _VAR_NODE = "var"
+    _ROUTE_NODE = "route"
 
-    _VAR_ANY_BREAK = ":*break"
+    __slots__ = ("_max_depth_custom", "_routes", "_max_depth", "_wildcard", "VAR_NODE", "ROUTE_NODE")
 
-    __slots__ = ("_max_depth_custom", "_routes", "_max_depth", "_separator")
-
-    def __init__(self, max_depth: int = 40):
+    def __init__(self, wildcard=":", max_depth=40):
         self._max_depth_custom = max_depth  # The maximum URL depth
         self._routes = {}
         self._max_depth = 0
-        self._separator = "/"
+        self._wildcard = wildcard
+        self.VAR_NODE = self.wildcard + self._VAR_NODE
+        self.ROUTE_NODE = self.wildcard + self._ROUTE_NODE
 
-    def _deconstruct_url(self, url: str):
+    def _deconstruct_url(self, url):
         """
         Split a regular URL into parts
 
@@ -74,7 +72,7 @@ class RouteTree:
             {masonite.exceptions.RouteTreeError} -- If the depth of the URL exceeds
             the max depth of the deepest registered pattern.
         """
-        parts = url.split(self._separator, self._max_depth + 1)
+        parts = url.split("/", self._max_depth + 1)
 
         if self.depth_of(parts) > self._max_depth:
             raise RouteTreeError("No match")
@@ -109,27 +107,15 @@ class RouteTree:
             try:
                 part = parts[depth]
             except IndexError:
-                if self._ROUTE_NODE in curr:
-                    route_match = curr[self._ROUTE_NODE]
+                if self.ROUTE_NODE in curr:
+                    route_match = curr[self.ROUTE_NODE]
                     route_variable_parts = curr_variable_parts
                     break
                 else:
                     continue
 
-            if self._VAR_ANY_NODE in curr:
-                to_visit.append(
-                    (
-                        {self._VAR_ANY_NODE: curr[self._VAR_ANY_NODE]},
-                        (curr_variable_parts, (self._VAR_ANY_NODE, part)),
-                        depth + 1,
-                    )
-                )
-                to_visit.append(
-                    (curr[self._VAR_ANY_NODE], (curr_variable_parts, (self._VAR_ANY_BREAK, part)), depth + 1)
-                )
-
-            if self._VAR_NODE in curr:
-                to_visit.append((curr[self._VAR_NODE], (curr_variable_parts, (self._VAR_NODE, part)), depth + 1))
+            if self.VAR_NODE in curr:
+                to_visit.append((curr[self.VAR_NODE], (curr_variable_parts, (self.VAR_NODE, part)), depth + 1))
 
             if part in curr:
                 to_visit.append((curr[part], curr_variable_parts, depth + 1))
@@ -176,23 +162,18 @@ class RouteTree:
             None
         """
         url = self.normalize_url(url)
-        parts = url.split(self._separator)
+        parts = url.split("/")
         curr_partial_routes = self._routes
         curr_key_parts = list()
 
         for part in parts:
-            if part.startswith(":*"):
-                curr_key_parts.append(part[2:])
-                part = self._VAR_ANY_NODE
-                self._max_depth = self._max_depth_custom
-
-            elif part.startswith(":"):
+            if part.startswith(self._wildcard):
                 curr_key_parts.append(part[1:])
-                part = self._VAR_NODE
+                part = self.VAR_NODE
 
             curr_partial_routes = curr_partial_routes.setdefault(part, {})
 
-        curr_partial_routes[self._ROUTE_NODE] = RouteNode(key_parts=curr_key_parts, route=route)
+        curr_partial_routes[self.ROUTE_NODE] = RouteNode(key_parts=curr_key_parts, route=route)
 
         self._max_depth = max(self._max_depth, self.depth_of(parts))
 
@@ -204,10 +185,10 @@ class RouteTree:
 
         Arguments:
             key_parts {list} -- A list of URL parts
-            variable_parts {VariablePartsType} -- Nested tuples of URL parts
+            variable_parts {tuple} -- Nested tuples of URL parts
 
         Returns:
-            {ParameterDictType} -- The param dict with the values assigned to the keys
+            {dict} -- The param dict with the values assigned to the keys
         """
         # The unwrapped variable parts are in reverse order.
         # Instead of reversing those we reverse the key parts
@@ -257,18 +238,18 @@ class RouteTree:
             url {string} -- URL with no leading and trailing 
                 separator literals (default slashes)
         """
-        if url.startswith(self._separator):
+        if url.startswith("/"):
             url = url[1:]
 
-        if url.endswith(self._separator):
+        if url.endswith("/"):
             url = url[:-1]
 
         return url
 
     @property
-    def separator(self):
-        return self._separator
+    def wildcard(self):
+        return self._wildcard
 
-    @separator.setter
-    def separator(self, literal):
-        self._separator = literal
+    @wildcard.setter
+    def wildcard(self, wildcard):
+        self._wildcard = wildcard
