@@ -4,35 +4,33 @@ from .exceptions import RouteTreeError
 
 
 class RouteNode:
-    __slots__ = ["key_parts", "anything"]
+    __slots__ = ("key_parts", "route")
 
-    def __init__(self, key_parts, anything):
+    def __init__(self, key_parts, route):
         """
         Route Node
 
         Arguments:
             key_parts {dict} -- Pattern variables to URL parts
-            anything {object} -- Literally anything. This is attached to the
-                URL pattern when registering it.
+            route {masonite.routes.BaseHttpRoute} -- Masonite Route
         """
         self.key_parts = key_parts
-        self.anything = anything
+        self.route = route
 
 
 class RouteResolved:
-    __slots__ = ["params", "anything"]
+    __slots__ = ("params", "route")
 
-    def __init__(self, params, anything):
+    def __init__(self, params, route):
         """
         Resolved route
 
         Arguments:
             params {dict} -- Pattern variables to URL parts
-            anything {object} -- Literally anything. This is attached to the
-                URL pattern when registering it.
+            route {masonite.routes.BaseHttpRoute} -- Masonite Route
         """
         self.params = params
-        self.anything = anything
+        self.route = route
 
 
 class RouteTree:
@@ -53,6 +51,8 @@ class RouteTree:
     _ROUTE_NODE = ":route"
 
     _VAR_ANY_BREAK = ":*break"
+
+    __slots__ = ("_max_depth_custom", "_routes", "_max_depth")
 
     def __init__(self, max_depth: int = 40):
         self._max_depth_custom = max_depth  # The maximum URL depth
@@ -138,7 +138,7 @@ class RouteTree:
 
         return RouteResolved(
             params=self.make_params(key_parts=route_match.key_parts, variable_parts=route_variable_parts),
-            anything=route_match.anything,
+            route=route_match.route,
         )
 
     def match(self, url):
@@ -158,7 +158,7 @@ class RouteTree:
         parts = self._deconstruct_url(url)
         return self._match(parts)
 
-    def add(self, url, anything):
+    def add(self, url, route):
         """ Register a URL pattern into the routes for later matching.
 
         It's possible to attach any kind of object to the pattern for later
@@ -169,7 +169,7 @@ class RouteTree:
 
         Arguments:
             url {string} -- URL
-            anything {Any} -- Literally anything.
+            route {masonite.routes.BaseHttpRoute} -- Masonite Route
         
         Returns:
             None
@@ -191,7 +191,7 @@ class RouteTree:
 
             curr_partial_routes = curr_partial_routes.setdefault(part, {})
 
-        curr_partial_routes[self._ROUTE_NODE] = RouteNode(key_parts=curr_key_parts, anything=anything)
+        curr_partial_routes[self._ROUTE_NODE] = RouteNode(key_parts=curr_key_parts, route=route)
 
         self._max_depth = max(self._max_depth, self.depth_of(parts))
 
