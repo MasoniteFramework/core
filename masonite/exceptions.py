@@ -84,3 +84,7 @@ class QueueException(Exception):
 
 class AmbiguousError(Exception):
     pass
+
+
+class RouteTreeError(Exception):
+    """ Base error for any exception raised by Archer """
