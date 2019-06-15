@@ -1,214 +1,403 @@
-""" Test Archer """
+""" Test Route Tree """
 import unittest
 import logging
 
 from masonite.RouteTree import RouteTree
 from masonite.exceptions import RouteTreeError
 
+from masonite.routes import Get, Post
+import pytest
 
-class TestRouteTree(unittest.TestCase):
+class Endpoint:
+    def __init__(self, x):
+        self.x = x
 
-    def setUp(self):
-        self.tree = RouteTree()
+    def __repr__(self):
+        return "<Endpoint {}>".format(self.x)
 
-    def tearDown(self):
-        pass
+    __str__ = __repr__
 
-    def test_match(self):
-        """
-        Should match an url to a registered pattern
-        """
-        self.tree.add(':foo/:bar/api/:baz', 'foo')
-        router = self.tree.match('foo/bar/api/baz')
-        self.assertDictEqual(
-            router.params,
-            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})
-        self.assertEqual(router.route, 'foo')
 
-    def test_match_nested(self):
-        """
-        Should support nested patterns
-        """
-        self.tree.add(':foo/:bar/api/:baz', 'foo')
-        self.tree.add(':foo/:bar/api/:baz/books/:id', 'bar')
-        router = self.tree.match('foo/bar/api/baz')
-        router_b = self.tree.match('foo/bar/api/baz/books/id')
-        self.assertDictEqual(
-            router.params,
-            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})
-        self.assertDictEqual(
-            router_b.params,
-            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz', 'id': 'id'})
-        self.assertEqual(router.route, 'foo')
-        self.assertEqual(router_b.route, 'bar')
+class Middleware:
+    def __init__(self, x):
+        self.x = x
 
-    def test_match_clashing(self):
-        """
-        Should resolve clashing
-        """
-        self.tree.add(':foo/:bar/:baz', 'foo')
-        self.tree.add(':foo/api/:baz', 'bar')
-        router = self.tree.match('foo/bar/baz')
-        router_b = self.tree.match('foo/api/baz')
-        self.assertDictEqual(
-            router.params,
-            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})
-        self.assertDictEqual(
-            router_b.params,
-            {'foo': 'foo', 'baz': 'baz'})
-        self.assertEqual(router.route, 'foo')
-        self.assertEqual(router_b.route, 'bar')
+    def __repr__(self):
+        return "<Middleware {}>".format(self.x)
 
-    def test_match_clashing_backtracking(self):
-        """
-        Should resolve clashing by doing backtracking
-        """
-        # match will walk up to the "api" part then realize
-        # it needs one more part and then fallback to the previous
-        # matched path (ie: all variables)
-        self.tree.add(':bar/:baz', 'foo')
-        self.tree.add('api', 'bar')
-        router = self.tree.match('bar/baz')
-        router_b = self.tree.match('api/baz')
-        self.assertDictEqual(
-            router.params,
-            {'bar': 'bar', 'baz': 'baz'})
-        self.assertDictEqual(
-            router_b.params,
-            {'bar': 'api', 'baz': 'baz'})
-        self.assertEqual(router.route, 'foo')
-        self.assertEqual(router_b.route, 'foo')
+    __str__ = __repr__
 
-    def test_match_clashing_backtracking_deeper(self):
-        """
-        Should resolve clashing by doing backtracking
-        """
-        self.tree.add(':foo/:bar/:baz', 'foo')
-        self.tree.add('api/:bar/:baz', 'bar')
-        self.tree.add('api/id', 'baz')
-        router = self.tree.match('api/id/baz')
-        self.assertDictEqual(
-            router.params,
-            {'bar': 'id', 'baz': 'baz'})
-        self.assertEqual(router.route, 'bar')
 
-    def test_match_clashing_last_part(self):
-        """
-        Should resolve clashing by doing backtracking
-        """
-        self.tree.add(':foo/last', 'foo')
-        self.tree.add('api', 'baz')
-        router = self.tree.match('api/last')
-        self.assertDictEqual(
-            router.params,
-            {'foo': 'api'})
-        self.assertEqual(router.route, 'foo')
+@pytest.fixture
+def endpoint_factory():
+    return Endpoint
 
-    def test_match_clashing_missing_part(self):
-        """
-        Should resolve clashing by doing backtracking
-        """
-        self.tree.add('foo/bar/:baz', 'foo')
-        self.tree.add(':foo/:bar', 'foo')
-        router = self.tree.match('foo/bar')
-        self.assertDictEqual(
-            router.params,
-            {'foo': 'foo', 'bar': 'bar'})
-        self.assertEqual(router.route, 'foo')
 
-    def test_match_not_found(self):
-        """
-        Should raise match error if there is no match
-        """
-        self.assertRaises(RouteTreeError, self.tree.match, 'foo')
+@pytest.fixture
+def middleware_factory():
+    return Middleware
 
-    def test_match_not_found_missing_part(self):
-        """
-        Should raise match error if there is no match
-        """
-        self.tree.add(':foo/:bar/:baz', 'foo')
-        self.assertRaises(RouteTreeError, self.tree.match, 'foo/bar')
+# Todo - Swap Webroutes for fixtures, change pytest to unittest
 
-    def test_match_case_sensitive(self):
-        """
-        Should be case sensitive (see HTTP URL spec)
-        """
-        self.tree.add('API', 'foo')
-        router = self.tree.match('API')
-        self.assertDictEqual(router.params, {})
-        self.assertEqual(router.route, 'foo')
-        self.assertRaises(RouteTreeError, self.tree.match, 'api')
+def test_tree():
+    tree = RouteTree()
+    assert tree is not None
+    assert tree.root is not None
+    assert len(tree.root.children) == 0
+    assert tree.root.path is None
+    assert tree.root.indices == ""
+    assert tree.root.methods == {}
+    assert tree.root.no_conflict_methods == {}
 
-    def test_match_bail_early_on_deeper_urls(self):
-        """
-        Should not bother matching URLs larger than the largest registered URL
-        """
-        self.tree.add('foo/bar/baz', 'foo')
-        self.tree.match('foo/bar/baz')
-        self.tree._max_depth = 0
-        self.assertRaises(RouteTreeError, self.tree.match, 'foo/bar/baz')
-        self.tree._max_depth = 1
-        self.assertRaises(RouteTreeError, self.tree.match, 'foo/bar/baz')
-        self.tree._max_depth = 10
-        self.tree.match('foo/bar/baz')
+    r = tree.get("/foo", "BAR")
+    assert r[0] is None
+    assert r[1] == []
+    assert r[2] == {}
 
-    def test_normalize_urls(self):
-        """
-        Should not care about leading/trailing slashes
-        """
-        self.tree.add('/foo/bar/baz/', 'foo')
-        router = self.tree.match('foo/bar/baz')
-        self.assertDictEqual(router.params, {})
-        self.assertEqual(router.route, 'foo')
 
-        router = self.tree.match('/foo/bar/baz/')
-        self.assertDictEqual(router.params, {})
-        self.assertEqual(router.route, 'foo')
+def test_tree_repr(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree()
+    assert repr(tree) == repr(tree.root)
+    assert (
+        repr(tree)
+        == '<RouteTreeNode path: None, methods: {}, indices: "", children: []>'
+    )
+    assert (
+        repr(tree.root)
+        == '<RouteTreeNode path: None, methods: {}, indices: "", children: []>'
+    )
+    tree.insert("/foo", endpoint_1, ["BAR"])
+    assert (
+        repr(tree.root.children[0])
+        == '<RouteTreeNode path: "/foo", methods: {\'BAR\': <Endpoint 1>}, indices: "", children: []>'
+    )
 
-        router = self.tree.match('/foo/bar/baz')
-        self.assertDictEqual(router.params, {})
-        self.assertEqual(router.route, 'foo')
 
-        router = self.tree.match('foo/bar/baz/')
-        self.assertDictEqual(router.params, {})
-        self.assertEqual(router.route, 'foo')
+def test_tree_validations(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree()
 
-    def test_max_depth(self):
-        """
-        Should not match on max_depth < url length
-        """
-        rts = RouteTree(max_depth=3)
-        rts.add(':foo/:bar:/baz', 'foo')
-        self.assertEqual(rts.match('foo/bar/baz').route, 'foo')
+    with pytest.raises(ValueError):
+        tree.insert(None, endpoint_1, ["BAR"])
 
-        rts = RouteTree(max_depth=1)
-        rts.add(':baz', 'foo')
-        self.assertRaises(RouteTreeError, rts.match, 'foo/bar/baz')
+    with pytest.raises(ValueError):
+        tree.insert("", endpoint_1, ["BAR"])
 
-        # Changes max_depth
-        rts.add(':var/bar/baz', 'bar')
-        self.assertEqual(rts.match('foo/bar/baz').route, 'bar')
+    with pytest.raises(ValueError):
+        tree.insert("     ", endpoint_1, ["BAR"])
 
-    def test_match_custom_wildcard(self):
-        """
-        Should match an url to a registered pattern given
-        a custom wildcard separator
-        """
-        # Define in init method
-        tree = RouteTree(wildcard="@")
-        tree.add('@foo/@bar/api/@baz', 'foo')
-        router = tree.match('foo/bar/api/baz')
-        self.assertDictEqual(
-            router.params,
-            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})
-        self.assertEqual(router.route, 'foo')
+    with pytest.raises(ValueError):
+        tree.insert("foo", endpoint_1, ["BAR"])
 
-        # Define as a property
-        tree = RouteTree()
-        tree.wildcard = "@"
-        tree.add('@foo/@bar/api/@baz', 'foo')
-        router = tree.match('foo/bar/api/baz')
-        self.assertDictEqual(
-            router.params,
-            {'foo': 'foo', 'bar': 'bar', 'baz': 'baz'})
-        self.assertEqual(router.route, 'foo')
+    with pytest.raises(ValueError):
+        tree.insert("   foo   ", endpoint_1, ["BAR"])
+
+    with pytest.raises(ValueError):
+        tree.insert("f/oo/", endpoint_1, ["BAR"])
+
+
+def test_tree_config_1(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree()
+    tree.VARIABLE = "$"
+    tree.SEPARATOR = "."
+
+    tree.insert(".foo", endpoint_1, ["BAR"])
+    tree.insert(".foo.$bar", endpoint_1, ["BAR"])
+    tree.insert(".bar", endpoint_1, ["BAR"])
+    tree.insert(".bar.*rest", endpoint_1, ["BAR"])
+
+    r = tree.get(".foo.hello", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == []
+    assert r[2] == {"bar": "hello"}
+
+    r = tree.get(".bar.avra.cadavra.alacazam", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == []
+    assert r[2] == {"rest": "avra.cadavra.alacazam"}
+
+    assert tree.config == {"variable": "$", "separator": "."}
+
+
+def test_tree_config_2(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree(variable="$", separator=".")
+
+    tree.insert(".foo", endpoint_1, ["BAR"])
+    tree.insert(".foo.$bar", endpoint_1, ["BAR"])
+    tree.insert(".bar", endpoint_1, ["BAR"])
+    tree.insert(".bar.*rest", endpoint_1, ["BAR"])
+
+    r = tree.get(".foo.hello", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == []
+    assert r[2] == {"bar": "hello"}
+
+    r = tree.get(".bar.avra.cadavra.alacazam", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == []
+    assert r[2] == {"rest": "avra.cadavra.alacazam"}
+
+    assert tree.config == {"variable": "$", "separator": "."}
+
+
+def test_tree_config_error():
+    tree = RouteTree()
+
+    with pytest.raises(ValueError):
+        tree.VARIABLE = "/"
+
+    with pytest.raises(ValueError):
+        tree.VARIABLE = "a"
+
+    with pytest.raises(ValueError):
+        tree.VARIABLE = "$$"
+
+    with pytest.raises(ValueError):
+        tree.VARIABLE = ""
+
+    with pytest.raises(ValueError):
+        tree.VARIABLE = None
+
+    with pytest.raises(ValueError):
+        tree.SEPARATOR = ":"
+
+    with pytest.raises(ValueError):
+        tree.SEPARATOR = "a"
+
+    with pytest.raises(ValueError):
+        tree.SEPARATOR = ".."
+
+    with pytest.raises(ValueError):
+        tree.SEPARATOR = ""
+
+    with pytest.raises(ValueError):
+        tree.SEPARATOR = None
+
+    with pytest.raises(ValueError):
+        RouteTree(variable="/")
+
+    with pytest.raises(ValueError):
+        RouteTree(separator=":")
+
+    with pytest.raises(ValueError):
+        RouteTree(variable=":", separator=":")
+
+    with pytest.raises(ValueError):
+        RouteTree(variable="a", separator="b")
+
+    with pytest.raises(ValueError):
+        RouteTree(separator="b")
+
+    with pytest.raises(ValueError):
+        RouteTree(variable="a")
+
+    with pytest.raises(ValueError):
+        RouteTree(variable="::", separator="//")
+
+    with pytest.raises(ValueError):
+        RouteTree(variable="::")
+
+    with pytest.raises(ValueError):
+        RouteTree(separator="//")
+
+    # ----------------------------------------------------------------------- #
+    # all tests bellow will assume defaults
+    # ----------------------------------------------------------------------- #
+
+    RouteTree(variable="", separator="")
+    RouteTree(separator="")
+    RouteTree(separator="")
+    RouteTree(variable=None, separator=None)
+    RouteTree(variable=None)
+    RouteTree(separator=None)
+
+    tree.insert("/", object(), ["BAR"])
+
+    with pytest.raises(ValueError):
+        tree.SEPARATOR = "."
+
+    with pytest.raises(ValueError):
+        tree.VARIABLE = "$"
+
+
+def test_tree_single_endpoint(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree()
+
+    tree.insert("/foo/:bar", endpoint_1, ["BAR"])
+
+    r = tree.get("/foo/hello", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == []
+    assert r[2] == {"bar": "hello"}
+
+    r = tree.get("/foooo", "BAR")
+    assert r[0] is None
+    assert r[1] == []
+    assert r[2] == {}
+
+
+def test_tree_methods_for(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    endpoint_2 = endpoint_factory(2)
+
+    tree = RouteTree()
+
+    tree.insert("/foo/:bar", endpoint_1, ["BAR"])
+    tree.insert("/foo/:bar", endpoint_2, ["FOO"])
+
+    r = tree.methods_for("/foo/hello")
+    assert r == {"BAR", "FOO"}
+
+    r = tree.methods_for("/foo/world")
+    assert r == {"BAR", "FOO"}
+
+    r = tree.methods_for("/foooo")
+    assert r == set()
+
+
+def test_tree_root_endpoint(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree()
+
+    tree.insert("/", endpoint_1, ["BAR"])
+
+    r = tree.get("/", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == []
+    assert r[2] == {}
+
+
+def test_tree_full(endpoint_factory, middleware_factory):
+    endpoint_1 = endpoint_factory(1)
+    middleware_1 = middleware_factory(1)
+    middleware_2 = middleware_factory(2)
+    middleware_3 = middleware_factory(3)
+    middleware_4 = middleware_factory(4)
+
+    tree = RouteTree()
+
+    tree.insert("/foo", endpoint_1, ["FOO"])
+    tree.insert("/foo", middleware_1, ["FOO", "BAR"], no_conflict=True)
+    tree.insert("/foo", middleware_1, ["BAR"], no_conflict=True)
+    tree.insert("/foo/:name", endpoint_1, ["FOO", "BAR"])
+    tree.insert(
+        "/foo/:name/:x", middleware_2, ["FOO", "BAR"], no_conflict=True
+    )
+    tree.insert("/foo/:name/:x/:y", endpoint_1, ["FOO", "BAR"])
+    tree.insert("/static/*path", endpoint_1, ["FOO"])
+
+    with pytest.raises(ValueError):
+        tree.insert("/foo/:bar", endpoint_1, ["FOO"])
+
+    with pytest.raises(KeyError):
+        tree.insert("/foo", middleware_2, ["FOO"])
+
+    r = tree.get("/foo/hello", "FOO")
+    assert r[0] == endpoint_1
+    assert r[1] == [middleware_1]
+    assert r[2] == {"name": "hello"}
+
+    r = tree.get("/foo/hello/a/b", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == [middleware_1, middleware_2]
+    assert r[2] == {"name": "hello", "x": "a", "y": "b"}
+
+    r = tree.get("/static/path/to/my/file.py", "FOO")
+    assert r[0] == endpoint_1
+    assert r[1] == []
+    assert r[2] == {"path": "path/to/my/file.py"}
+
+    tree.insert(
+        "/foo/:name/:x", middleware_3, ["FOO", "BAR"], no_conflict=True
+    )
+
+    tree.insert("/foo/:name/:x/:y", middleware_4, ["FOO"], no_conflict=True)
+
+    r = tree.get("/foo/hello/a/b", "FOO")
+    assert r[0] == endpoint_1
+    assert r[1] == [middleware_1, middleware_2, middleware_3, middleware_4]
+    assert r[2] == {"name": "hello", "x": "a", "y": "b"}
+
+    r = tree.get("/foo/hello/aa", "FOO")
+    assert r[0] is None
+    assert r[1] == []
+    assert r[2] == {}
+
+    r = tree.get("/foo/hello/a/b", "BAZ")
+    assert r[0] is tree.sentinel
+    assert r[1] == []
+    assert r[2] == {}
+
+    m = tree.methods_for("/foo/hello/aa")
+    assert m == set()
+
+    m = tree.methods_for("/foo/hello/a/b")
+    assert m == {"BAR", "FOO"}
+
+    m = tree.methods_for("/foo")
+    assert m == {"FOO"}
+
+    m = tree.methods_for("/static/abra/cadabra")
+    assert m == {"FOO"}
+
+
+def test_sentinel(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree()
+    tree.insert("/hello/:bar", endpoint_1, ["BAR"])
+
+    r = tree.get("/hello/world", "BAZ")
+    assert r[0] is tree.sentinel
+    assert r[1] == []
+    assert r[2] == {}
+
+
+def test_duplicate_parameters(endpoint_factory):
+    endpoint_1 = endpoint_factory(1)
+    tree = RouteTree()
+    tree.insert("/hello/:bar", endpoint_1, ["BAR"])
+
+    with pytest.raises(ValueError):
+        tree.insert("/hello/:bar/:bar", endpoint_1, ["BAR"])
+
+    with pytest.raises(ValueError):
+        tree.insert("/hello/:bar/world/:bar", endpoint_1, ["BAR"])
+
+    with pytest.raises(ValueError):
+        tree.insert("/hello/:bar/world/*bar", endpoint_1, ["BAR"])
+
+    another_tree = RouteTree(variable=".", separator="|")
+    another_tree.insert("|hello|.bar", endpoint_1, ["BAR"])
+
+    with pytest.raises(ValueError):
+        another_tree.insert("|hello|.bar|.bar", endpoint_1, ["BAR"])
+
+    with pytest.raises(ValueError):
+        another_tree.insert("|hello|.bar|world|.bar", endpoint_1, ["BAR"])
+
+    with pytest.raises(ValueError):
+        another_tree.insert("|hello|.bar|world|*bar", endpoint_1, ["BAR"])
+
+
+def test_tree_middleware_first(endpoint_factory, middleware_factory):
+    endpoint_1 = endpoint_factory(1)
+    middleware_1 = middleware_factory(1)
+
+    tree = RouteTree()
+
+    tree.insert("/hello", middleware_1, ["BAR"], no_conflict=True)
+    tree.insert("/hello/world", endpoint_1, ["BAR"])
+
+    r = tree.get("/hello", "BAR")
+    assert r[0] is None
+    assert r[1] == []
+    assert r[2] == {}
+
+    r = tree.get("/hello/world", "BAR")
+    assert r[0] == endpoint_1
+    assert r[1] == [middleware_1]
+    assert r[2] == {}

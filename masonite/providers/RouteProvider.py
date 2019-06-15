@@ -5,14 +5,27 @@ from masonite.provider import ServiceProvider
 from masonite.request import Request
 from masonite.response import Response
 from masonite.routes import Route
+from masonite.RouteTree import RouteTree
 
 
 class RouteProvider(ServiceProvider):
 
     def register(self):
+        # Todo - Create tree and bind it
+        # routes = self.app.make("WebRoutes")
+        # tree = RouteTree()
+
+        # # Put routes in tree
+        # for route in routes:
+        #     method = route.method_type
+        #     url = route.route_url
+        #     tree.insert(url, route, method)
+
+        # self.app.bind("RouteTree", tree)
         pass
 
     def boot(self, router: Route, request: Request, response: Response):
+        # Todo - Tree based lookup
         # All routes joined
         from config import application
         for route in self.app.make('WebRoutes'):
