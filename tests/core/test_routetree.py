@@ -1,3 +1,27 @@
+"""
+MIT License
+
+Copyright (c) 2018, Richard Kuesters
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 """ Test Route Tree """
 import unittest
 import logging
@@ -162,7 +186,7 @@ def test_tree_config_error():
         tree.VARIABLE = None
 
     with pytest.raises(ValueError):
-        tree.SEPARATOR = ":"
+        tree.SEPARATOR = "@"
 
     with pytest.raises(ValueError):
         tree.SEPARATOR = "a"
@@ -180,7 +204,7 @@ def test_tree_config_error():
         RouteTree(variable="/")
 
     with pytest.raises(ValueError):
-        RouteTree(separator=":")
+        RouteTree(separator="@")
 
     with pytest.raises(ValueError):
         RouteTree(variable=":", separator=":")
@@ -220,14 +244,14 @@ def test_tree_config_error():
         tree.SEPARATOR = "."
 
     with pytest.raises(ValueError):
-        tree.VARIABLE = "$"
+        tree.VARIABLE = "@"
 
 
 def test_tree_single_endpoint(endpoint_factory):
     endpoint_1 = endpoint_factory(1)
     tree = RouteTree()
 
-    tree.insert("/foo/:bar", endpoint_1, ["BAR"])
+    tree.insert("/foo/@bar", endpoint_1, ["BAR"])
 
     r = tree.get("/foo/hello", "BAR")
     assert r[0] == endpoint_1
@@ -246,8 +270,8 @@ def test_tree_methods_for(endpoint_factory):
 
     tree = RouteTree()
 
-    tree.insert("/foo/:bar", endpoint_1, ["BAR"])
-    tree.insert("/foo/:bar", endpoint_2, ["FOO"])
+    tree.insert("/foo/@bar", endpoint_1, ["BAR"])
+    tree.insert("/foo/@bar", endpoint_2, ["FOO"])
 
     r = tree.methods_for("/foo/hello")
     assert r == {"BAR", "FOO"}
@@ -283,15 +307,15 @@ def test_tree_full(endpoint_factory, middleware_factory):
     tree.insert("/foo", endpoint_1, ["FOO"])
     tree.insert("/foo", middleware_1, ["FOO", "BAR"], no_conflict=True)
     tree.insert("/foo", middleware_1, ["BAR"], no_conflict=True)
-    tree.insert("/foo/:name", endpoint_1, ["FOO", "BAR"])
+    tree.insert("/foo/@name", endpoint_1, ["FOO", "BAR"])
     tree.insert(
-        "/foo/:name/:x", middleware_2, ["FOO", "BAR"], no_conflict=True
+        "/foo/@name/@x", middleware_2, ["FOO", "BAR"], no_conflict=True
     )
-    tree.insert("/foo/:name/:x/:y", endpoint_1, ["FOO", "BAR"])
+    tree.insert("/foo/@name/@x/@y", endpoint_1, ["FOO", "BAR"])
     tree.insert("/static/*path", endpoint_1, ["FOO"])
 
     with pytest.raises(ValueError):
-        tree.insert("/foo/:bar", endpoint_1, ["FOO"])
+        tree.insert("/foo/@bar", endpoint_1, ["FOO"])
 
     with pytest.raises(KeyError):
         tree.insert("/foo", middleware_2, ["FOO"])
@@ -312,10 +336,10 @@ def test_tree_full(endpoint_factory, middleware_factory):
     assert r[2] == {"path": "path/to/my/file.py"}
 
     tree.insert(
-        "/foo/:name/:x", middleware_3, ["FOO", "BAR"], no_conflict=True
+        "/foo/@name/@x", middleware_3, ["FOO", "BAR"], no_conflict=True
     )
 
-    tree.insert("/foo/:name/:x/:y", middleware_4, ["FOO"], no_conflict=True)
+    tree.insert("/foo/@name/@x/@y", middleware_4, ["FOO"], no_conflict=True)
 
     r = tree.get("/foo/hello/a/b", "FOO")
     assert r[0] == endpoint_1
@@ -348,7 +372,7 @@ def test_tree_full(endpoint_factory, middleware_factory):
 def test_sentinel(endpoint_factory):
     endpoint_1 = endpoint_factory(1)
     tree = RouteTree()
-    tree.insert("/hello/:bar", endpoint_1, ["BAR"])
+    tree.insert("/hello/@bar", endpoint_1, ["BAR"])
 
     r = tree.get("/hello/world", "BAZ")
     assert r[0] is tree.sentinel
@@ -359,16 +383,13 @@ def test_sentinel(endpoint_factory):
 def test_duplicate_parameters(endpoint_factory):
     endpoint_1 = endpoint_factory(1)
     tree = RouteTree()
-    tree.insert("/hello/:bar", endpoint_1, ["BAR"])
+    tree.insert("/hello/@bar", endpoint_1, ["BAR"])
 
     with pytest.raises(ValueError):
-        tree.insert("/hello/:bar/:bar", endpoint_1, ["BAR"])
+        tree.insert("/hello/@bar/@bar", endpoint_1, ["BAR"])
 
     with pytest.raises(ValueError):
-        tree.insert("/hello/:bar/world/:bar", endpoint_1, ["BAR"])
-
-    with pytest.raises(ValueError):
-        tree.insert("/hello/:bar/world/*bar", endpoint_1, ["BAR"])
+        tree.insert("/hello/@bar/world/@bar", endpoint_1, ["BAR"])
 
     another_tree = RouteTree(variable=".", separator="|")
     another_tree.insert("|hello|.bar", endpoint_1, ["BAR"])
