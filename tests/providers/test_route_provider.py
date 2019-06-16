@@ -13,7 +13,7 @@ from masonite.view import View
 from masonite.auth import Auth
 from masonite.managers import AuthManager
 from masonite.drivers import AuthCookieDriver
-
+from masonite.RouteTree import RouteTree
 
 class TestRouteProvider(unittest.TestCase):
 
@@ -38,10 +38,12 @@ class TestRouteProvider(unittest.TestCase):
         self.app.bind('AuthManager', AuthManager(self.app).driver('cookie'))
         self.provider = RouteProvider()
         self.provider.app = self.app
+        self.tree = RouteTree(variable="@")
 
     def test_controller_that_returns_a_view(self):
         self.app.make('Route').url = '/view'
         self.app.bind('WebRoutes', [Get('/view', ControllerTest.test)])
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -64,6 +66,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_home_route(self):
         self.app.make('Route').url = '/'
         self.app.bind('WebRoutes', [Get('/', ControllerTest.test)])
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -76,6 +79,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_base_route_hits_controller(self):
         self.app.make('Route').url = '/test'
         self.app.bind('WebRoutes', [Get('/@id', ControllerTest.test)])
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -88,6 +92,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_no_base_route_returns_404(self):
         self.app.make('Route').url = '/'
         self.app.bind('WebRoutes', [Get('/test', ControllerTest.test)])
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -100,7 +105,7 @@ class TestRouteProvider(unittest.TestCase):
 
         self.app.make('Route').url = '/view'
         self.app.bind('WebRoutes', [Get('/view', ControllerTest.test)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -111,7 +116,7 @@ class TestRouteProvider(unittest.TestCase):
 
         self.app.make('Route').url = '/view'
         self.app.bind('WebRoutes', [Get('/view', ControllerTest.test)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -124,7 +129,7 @@ class TestRouteProvider(unittest.TestCase):
         self.app.make('Route').url = '/view'
         self.app.bind(
             'WebRoutes', [Match(['GET', 'POST']).route('/view', ControllerTest.returns_a_view)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -136,7 +141,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_provider_runs_through_routes(self):
         self.app.make('Route').url = '/test'
         self.app.bind('WebRoutes', [Get('/test', ControllerTest.test)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -149,7 +154,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_sets_request_params(self):
         self.app.make('Route').url = '/test/1'
         self.app.bind('WebRoutes', [Get('/test/@id', ControllerTest.test)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -161,7 +166,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_can_use_resolving_params(self):
         self.app.make('Route').url = '/test/1'
         self.app.bind('WebRoutes', [Get('/test/@id', ControllerTest.get_param)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -173,7 +178,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_can_use_resolving_params_and_object(self):
         self.app.make('Route').url = '/test/1'
         self.app.bind('WebRoutes', [Get('/test/@id', ControllerTest.get_param_and_object)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -187,7 +192,7 @@ class TestRouteProvider(unittest.TestCase):
         self.app.make('Route').url = '/test/user.endpoint'
         self.app.bind(
             'WebRoutes', [Get('/test/@endpoint', ControllerTest.test)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -201,7 +206,7 @@ class TestRouteProvider(unittest.TestCase):
         self.app.bind('WebRoutes', [
             Get().view('/test/route', 'test', {'test': 'testing'})
         ])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -214,7 +219,7 @@ class TestRouteProvider(unittest.TestCase):
         self.app.make('Route').url = '/test/user-endpoint'
         self.app.bind(
             'WebRoutes', [Get('/test/@endpoint', ControllerTest.test)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -226,7 +231,7 @@ class TestRouteProvider(unittest.TestCase):
     def test_param_returns_param(self):
         self.app.make('Route').url = '/test/1'
         self.app.bind('WebRoutes', [Get('/test/@id', ControllerTest.param)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -239,7 +244,7 @@ class TestRouteProvider(unittest.TestCase):
         self.app.make('Route').url = '/test/1'
         self.app.make('Route').compile('signed', r'([\w.-]+)')
         self.app.bind('WebRoutes', [Get('/test/@id:signed', ControllerTest.param)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -255,7 +260,7 @@ class TestRouteProvider(unittest.TestCase):
 
         request = self.app.make('Request')
         request.activate_subdomains()
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -268,7 +273,7 @@ class TestRouteProvider(unittest.TestCase):
         self.app.make('Route').url = '/view'
         self.app.bind(
             'WebRoutes', [Get('/view', ControllerTest.returns_a_dict)])
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -285,7 +290,7 @@ class TestRouteProvider(unittest.TestCase):
             Get('/view', ControllerTest.returns_a_dict).middleware('test')
         ]
         )
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
@@ -301,7 +306,7 @@ class TestRouteProvider(unittest.TestCase):
             Get('/view', ControllerTest.returns_a_dict).middleware('middleware.test')
         ]
         )
-
+        self.provider.register()
         self.provider.boot(
             self.app.make('Route'),
             self.app.make('Request'),
