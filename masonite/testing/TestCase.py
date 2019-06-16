@@ -149,10 +149,9 @@ class TestCase(unittest.TestCase):
         return self
 
     def route(self, url, method=False):
-        for route in self.container.make('WebRoutes'):
-            matchurl = create_matchurl(url, route)
-            if matchurl.match(url) and method in route.method_type:
-                return MockRoute(route, self.container)
+        tree = self.container.make("RouteTree")
+        route, _, _ = tree.get(url, method)
+        return MockRoute(route, self.container)
 
     def routes(self, routes):
         self.container.bind('WebRoutes', flatten_routes(self.container.make('WebRoutes') + routes))
