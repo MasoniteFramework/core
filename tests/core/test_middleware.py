@@ -52,6 +52,7 @@ class TestMiddleware(unittest.TestCase):
 
         self.provider = RouteProvider()
         self.provider.app = self.app
+        self.provider.register()
 
     def test_route_middleware_runs(self):
         self.app.resolve(self.provider.boot)
