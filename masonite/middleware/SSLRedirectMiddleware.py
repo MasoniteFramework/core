@@ -2,6 +2,8 @@
 
 from masonite.request import Request
 
+from config import application
+
 
 class SSLRedirectMiddleware:
     """SSL Redirect Middleware."""
@@ -18,7 +20,7 @@ class SSLRedirectMiddleware:
         """Redirect user to secure URL."""
         from config import middleware
         if middleware.SSLRedirect:
-            host = request.environ['HOST']
+            host = application.URL or request.environ['HOST']
             url = 'https://{}{}'.format(host, self.request.path)
             return self.request.redirect(url)
 
