@@ -1,12 +1,12 @@
 import io
 import json
-import subprocess
 import unittest
 from contextlib import contextmanager
 from urllib.parse import urlencode
 
 from masonite import env
 from masonite.helpers.routes import flatten_routes, create_matchurl
+from masonite.helpers.migrations import Migrations
 from masonite.testsuite import generate_wsgi
 from orator.orm import Factory
 
@@ -87,20 +87,20 @@ class TestCase(unittest.TestCase):
 
     def setUpDatabase(self):
         self.tearDownDatabase()
-        subprocess.call(['craft', 'migrate'])
+        Migrations().run()
         if hasattr(self, 'setUpFactories'):
             self.setUpFactories()
 
     def tearDownDatabase(self):
-        subprocess.call(['craft', 'migrate:reset'])
+        Migrations().reset()
 
     @staticmethod
     def staticSetUpDatabase():
-        subprocess.call(['craft', 'migrate'])
+        Migrations().run()
 
     @staticmethod
     def staticTearDownDatabase():
-        subprocess.call(['craft', 'migrate:reset'])
+        Migrations().reset()
 
     def tearDown(self):
         if not self.transactions and self.refreshes_database:
@@ -109,14 +109,19 @@ class TestCase(unittest.TestCase):
     def call(self, method, url, params, wsgi={}):
         custom_wsgi = {
             'PATH_INFO': url,
-            'REQUEST_METHOD': method,
-            'QUERY_STRING': urlencode(params)
+            'REQUEST_METHOD': method
         }
 
         custom_wsgi.update(wsgi)
         if not self._with_csrf:
-            custom_wsgi.update({'HTTP_COOKIE': 'csrf_token=tok'})
             params.update({'__token': 'tok'})
+            custom_wsgi.update({
+                'HTTP_COOKIE': 'csrf_token=tok'
+            })
+
+        custom_wsgi.update({
+            'QUERY_STRING': urlencode(params)
+        })
 
         self.run_container(custom_wsgi)
         self.container.make('Request').request_variables = params
@@ -145,6 +150,8 @@ class TestCase(unittest.TestCase):
         return self.json('DELETE', url, params)
 
     def actingAs(self, user):
+        if not user:
+            raise TypeError("Cannot act as a user of type: {}".format(type(user)))
         self.acting_user = user
         return self
 
@@ -192,3 +199,19 @@ class TestCase(unittest.TestCase):
 
     def withoutCsrf(self):
         self._with_csrf = False
+
+    def assertDatabaseHas(self, schema, value):
+        from config.database import DB
+
+        table = schema.split('.')[0]
+        column = schema.split('.')[1]
+
+        self.assertTrue(DB.table(table).where(column, value).first())
+
+    def assertDatabaseNotHas(self, schema, value):
+        from config.database import DB
+
+        table = schema.split('.')[0]
+        column = schema.split('.')[1]
+
+        self.assertFalse(DB.table(table).where(column, value).first())

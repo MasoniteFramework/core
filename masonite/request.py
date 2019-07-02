@@ -15,11 +15,10 @@ from urllib.parse import parse_qsl
 
 import tldextract
 from cryptography.fernet import InvalidToken
-
-
 from masonite.auth.Sign import Sign
 from masonite.exceptions import InvalidHTTPStatusCode, RouteException
-from masonite.helpers import dot, clean_request_input, Dot as DictDot
+from masonite.helpers import Dot as DictDot
+from masonite.helpers import clean_request_input, dot
 from masonite.helpers.Extendable import Extendable
 from masonite.helpers.routes import compile_route_to_regex
 from masonite.helpers.status import response_statuses
@@ -229,8 +228,11 @@ class Request(Extendable):
             for name in variables.keys():
                 value = self._get_standardized_value(variables[name])
                 self.request_variables[name.replace('[]', '')] = value
+            return
         except TypeError:
-            self.request_variables = {}
+            pass
+
+        self.request_variables = {}
 
     def _get_standardized_value(self, value):
         """Get the standardized value based on the type of the value parameter.
@@ -394,6 +396,9 @@ class Request(Extendable):
             self.environ[key] = str(value)
             self._headers.update({key: str(value)})
 
+    def has_raw_header(self, key):
+        return key in self._headers
+
     def get_headers(self):
         """Return all current headers to be set.
 
@@ -454,7 +459,7 @@ class Request(Extendable):
         Returns:
             self
         """
-        self.url_params.update(params)
+        self.url_params = params
         return self
 
     def param(self, parameter):
@@ -683,7 +688,7 @@ class Request(Extendable):
             if route.named_route == name:
                 return self.compile_route_to_url(route.route_url, params)
 
-        return None
+        raise RouteException("Could not find the route with the name of '{}'".format(name))
 
     def _get_route_from_controller(self, controller):
         """Get the route using the controller.

@@ -194,8 +194,12 @@ class BaseHttpRoute:
             # Set the controller method on class. This is a string
             self.controller_method = mod[1]
 
-        except Exception as e:
-            print('\033[93mWarning in routes/web.py!', e, '\033[0m')
+        except Exception:
+            import sys
+            import traceback
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            tb = traceback.extract_tb(exc_tb)[-1]
+            print('\033[93mWarning in routes/web.py!', exc_type, 'in', tb[0], 'on line', tb[1], '\033[0m')
 
     def get_response(self):
         # Resolve Controller Constructor
@@ -330,11 +334,16 @@ class BaseHttpRoute:
                         regex += Route.route_compilers[regex_route.split(':')[
                             1]]
                     except KeyError:
-                        raise InvalidRouteCompileException(
-                            'Route compiler "{}" is not an available route compiler. '
-                            'Verify you spelled it correctly or that you have added it using the compile() method.'.format(
-                                regex_route.split(':')[1])
-                        )
+                        if hasattr(self, '_compiled_regex'):
+                            raise InvalidRouteCompileException(
+                                'Route compiler "{}" is not an available route compiler. '
+                                'Verify you spelled it correctly or that you have added it using the compile() method.'.format(
+                                    regex_route.split(':')[1])
+                            )
+                        self._compiled_regex = None
+                        self._compiled_regex_end = None
+                        return
+
                 else:
                     regex += Route.route_compilers['default']
 
