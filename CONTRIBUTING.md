@@ -7,7 +7,7 @@ When contributing to this repository, please first discuss the change you wish t
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
 ## Getting Started
-
+ 
 The framework has three main parts.
 
 This `MasoniteFramework/masonite` repository is the main repository that will install when creating new projects using the `craft new` command. Not much development will be done in this repository and won't be changed unless new releases of Masonite require changes in the default installation project.
