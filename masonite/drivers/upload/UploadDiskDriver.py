@@ -14,8 +14,7 @@ class UploadDiskDriver(BaseUploadDriver, UploadContract):
     file_location = None
 
     def __init__(self):
-        """Upload Disk Driver Constructor.
-        """
+        """Upload Disk Driver Constructor."""
         pass
 
     def store(self, fileitem, filename=None, location=None):
@@ -37,7 +36,7 @@ class UploadDiskDriver(BaseUploadDriver, UploadContract):
             filename = self.get_name(fileitem)
 
         # Check if is a valid extension
-        self.validate_extension(filename)
+        self.validate_extension(self.get_name(fileitem))
 
         location = self.get_location(location)
 

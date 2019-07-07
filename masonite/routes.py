@@ -64,7 +64,7 @@ class Route:
                 try:
                     request_body_size = int(
                         self.environ.get('CONTENT_LENGTH', 0))
-                except (ValueError):
+                except ValueError:
                     request_body_size = 0
 
                 request_body = self.environ['wsgi.input'].read(
@@ -203,8 +203,12 @@ class BaseHttpRoute:
             # Set the controller method on class. This is a string
             self.controller_method = mod[1]
 
-        except Exception as e:
-            print('\033[93mWarning in routes/web.py!', e, '\033[0m')
+        except Exception:
+            import sys
+            import traceback
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            tb = traceback.extract_tb(exc_tb)[-1]
+            print('\033[93mWarning in routes/web.py!', exc_type, 'in', tb[0], 'on line', tb[1], '\033[0m')
 
     def get_response(self):
         # Resolve Controller Constructor
@@ -339,11 +343,16 @@ class BaseHttpRoute:
                         regex += Route.route_compilers[regex_route.split(':')[
                             1]]
                     except KeyError:
-                        raise InvalidRouteCompileException(
-                            'Route compiler "{}" is not an available route compiler. '
-                            'Verify you spelled it correctly or that you have added it using the compile() method.'.format(
-                                regex_route.split(':')[1])
-                        )
+                        if hasattr(self, '_compiled_regex'):
+                            raise InvalidRouteCompileException(
+                                'Route compiler "{}" is not an available route compiler. '
+                                'Verify you spelled it correctly or that you have added it using the compile() method.'.format(
+                                    regex_route.split(':')[1])
+                            )
+                        self._compiled_regex = None
+                        self._compiled_regex_end = None
+                        return
+
                 else:
                     regex += Route.route_compilers['default']
 
@@ -372,7 +381,7 @@ class Get(BaseHttpRoute):
         """Get constructor."""
         self.method_type = ['GET']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -383,7 +392,7 @@ class Head(BaseHttpRoute):
         """Head constructor."""
         self.method_type = ['HEAD']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -394,7 +403,7 @@ class Post(BaseHttpRoute):
         """Post constructor."""
         self.method_type = ['POST']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -409,7 +418,7 @@ class Match(BaseHttpRoute):
         # Make all method types in list uppercase
         self.method_type = [x.upper() for x in method_type]
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -420,7 +429,7 @@ class Put(BaseHttpRoute):
         """Put constructor."""
         self.method_type = ['PUT']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -431,7 +440,7 @@ class Patch(BaseHttpRoute):
         """Patch constructor."""
         self.method_type = ['PATCH']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -442,7 +451,7 @@ class Delete(BaseHttpRoute):
         """Delete constructor."""
         self.method_type = ['DELETE']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -453,7 +462,7 @@ class Connect(BaseHttpRoute):
         """Connect constructor."""
         self.method_type = ['CONNECT']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -464,7 +473,7 @@ class Options(BaseHttpRoute):
         """Options constructor."""
         self.method_type = ['OPTIONS']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -475,7 +484,7 @@ class Trace(BaseHttpRoute):
         """Trace constructor."""
         self.method_type = ['TRACE']
         self.list_middleware = []
-        if route and output:
+        if route is not None and output is not None:
             self.route(route, output)
 
 
@@ -603,6 +612,9 @@ class RouteGroup:
             prefix {str} -- String to prefix to all Routes.
         """
         for route in self.routes:
+            if route.route_url == '/':
+                route.route_url = ''
+
             route.route_url = prefix + route.route_url
             route.compile_route_to_regex()
 

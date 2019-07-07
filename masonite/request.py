@@ -15,11 +15,10 @@ from urllib.parse import parse_qsl
 
 import tldextract
 from cryptography.fernet import InvalidToken
-
-
 from masonite.auth.Sign import Sign
 from masonite.exceptions import InvalidHTTPStatusCode, RouteException
-from masonite.helpers import dot, clean_request_input, Dot as DictDot
+from masonite.helpers import Dot as DictDot
+from masonite.helpers import clean_request_input, dot
 from masonite.helpers.Extendable import Extendable
 from masonite.helpers.routes import compile_route_to_regex
 from masonite.helpers.status import response_statuses
@@ -58,6 +57,7 @@ class Request(Extendable):
         self._activate_subdomains = False
         self._status = None
         self.request_variables = {}
+        self._test_user = False
 
         if environ:
             self.load_environ(environ)
@@ -225,11 +225,15 @@ class Request(Extendable):
             variables = dict(parse_qsl(variables))
 
         try:
+            self.request_variables = {}
             for name in variables.keys():
                 value = self._get_standardized_value(variables[name])
                 self.request_variables[name.replace('[]', '')] = value
+            return
         except TypeError:
-            self.request_variables = {}
+            pass
+
+        self.request_variables = {}
 
     def _get_standardized_value(self, value):
         """Get the standardized value based on the type of the value parameter.
@@ -259,15 +263,7 @@ class Request(Extendable):
 
             return value
 
-        if isinstance(value, dict):
-            return value
-
-        try:
-            return int(value)
-        except (ValueError, TypeError):
-            pass
-
-        if isinstance(value, str):
+        if isinstance(value, (str, int, dict)):
             return value
 
         if not value.filename:
@@ -369,8 +365,8 @@ class Request(Extendable):
                                 None if it doesn't exist or True if setting the headers.
         """
         if isinstance(key, dict):
-            for key, value in key.items():
-                self._set_header(key, value, http_prefix)
+            for dic_key, dic_value in key.items():
+                self._set_header(dic_key, dic_value, http_prefix)
             return
 
         # Get Headers
@@ -392,6 +388,9 @@ class Request(Extendable):
         else:
             self.environ[key] = str(value)
             self._headers.update({key: str(value)})
+
+    def has_raw_header(self, key):
+        return key in self._headers
 
     def get_headers(self):
         """Return all current headers to be set.
@@ -607,7 +606,11 @@ class Request(Extendable):
         Returns:
             self
         """
-        self.user_model = user_model
+        if self._test_user:
+            self.user_model = self._test_user
+        else:
+            self.user_model = user_model
+
         return self
 
     def user(self):
@@ -678,7 +681,7 @@ class Request(Extendable):
             if route.named_route == name:
                 return self.compile_route_to_url(route.route_url, params)
 
-        return None
+        raise RouteException("Could not find the route with the name of '{}'".format(name))
 
     def _get_route_from_controller(self, controller):
         """Get the route using the controller.

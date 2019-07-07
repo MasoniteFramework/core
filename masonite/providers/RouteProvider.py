@@ -24,14 +24,13 @@ class RouteProvider(ServiceProvider):
             end with a trailing slash.
             """
 
-            matchurl = create_matchurl(router, route)
+            matchurl = create_matchurl(router.url, route)
 
             """Houston, we've got a match
                 Check to see if a route matches the corresponding router url. If a match
                 is found, execute that route and break out of the loop. We only need
                 one match. Routes are executed on a first come, first serve basis
             """
-
             if matchurl.match(router.url) and request.get_request_method() in route.method_type:
                 route.load_request(request)
 

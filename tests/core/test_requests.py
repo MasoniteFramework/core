@@ -1,8 +1,7 @@
 import unittest
-
 from cgi import MiniFieldStorage
-from app.http.test_controllers.TestController import TestController
-from config import application, providers
+
+import pytest
 from masonite.app import App
 from masonite.exceptions import InvalidHTTPStatusCode, RouteException
 from masonite.helpers.routes import flatten_routes
@@ -11,6 +10,9 @@ from masonite.request import Request
 from masonite.response import Response
 from masonite.routes import Get, RouteGroup
 from masonite.testsuite.TestSuite import generate_wsgi
+
+from app.http.test_controllers.TestController import TestController
+from config import application, providers
 
 WEB_ROUTES = flatten_routes([
     Get('/test', 'Controller@show').name('test'),
@@ -76,6 +78,18 @@ class TestRequest(unittest.TestCase):
     def test_request_appends_cookie(self):
         self.assertEqual(self.request.cookie('appendcookie', 'value'), self.request)
         assert 'appendcookie' in self.request.environ['HTTP_COOKIE']
+
+    def test_request_input_can_get_dictionary_elements(self):
+        self.request.request_variables = {
+            "user": {
+                "address": [
+                    {"id": 1, 'street': 'A Street'},
+                    {"id": 2, 'street': 'B Street'}
+                ]
+            }
+        }
+        self.assertEqual(self.request.input('user.address.*.id'), [1,2])
+        self.assertEqual(self.request.input('user.address.*.street'), ['A Street', 'B Street'])
 
     def test_request_sets_and_gets_cookies(self):
         self.request.cookie('setcookie', 'value')
@@ -215,6 +229,21 @@ class TestRequest(unittest.TestCase):
 
         self.assertFalse(request.redirect_url)
 
+    def test_redirect_to_throws_exception_when_no_routes_found(self):
+        app = App()
+        app.bind('Request', self.request)
+        app.bind('WebRoutes', WEB_ROUTES)
+        request = app.make('Request').load_app(app)
+
+        request.redirect_to('test')
+        request.redirect(name='test')
+
+        with pytest.raises(RouteException):
+            request.redirect_to('notavailable')
+
+        with pytest.raises(RouteException):
+            request.redirect(name='notavailable')
+
     def test_request_has_subdomain_returns_bool(self):
         app = App()
         app.bind('Request', self.request)
@@ -308,7 +337,7 @@ class TestRequest(unittest.TestCase):
         ])
         request = app.make('Request').load_app(app)
 
-        self.assertEqual(request.route('test.url', full=True), 'http://localhost/test/url')
+        self.assertEqual(request.route('test.url', full=True), 'http://localhost:8000/test/url')
 
     def test_redirect_compiles_url_with_multiple_slashes(self):
         app = App()

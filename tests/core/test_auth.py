@@ -12,7 +12,7 @@ from masonite.routes import Get
 from masonite.request import Request
 from masonite.snippets.auth.controllers.ConfirmController import \
     ConfirmController
-from masonite.testing import DatabaseTestCase
+from masonite.testing import TestCase
 from masonite.testsuite.TestSuite import generate_wsgi
 from masonite.view import View
 
@@ -21,9 +21,11 @@ class User(Model, MustVerifyEmail):
     __guarded__ = []
 
 
-class TestAuth(DatabaseTestCase):
+class TestAuth(TestCase):
 
-    refreshes_database = False
+    """Start and rollback transactions for this test
+    """
+    transactions = True
 
     def setUp(self):
         super().setUp()
@@ -64,6 +66,12 @@ class TestAuth(DatabaseTestCase):
             self.assertTrue(self.auth.login('user@email.com', 'secret'))
             self.assertTrue(self.request.get_cookie('token'))
             self.assertEqual(self.auth.user().name, 'testuser123')
+
+    def test_login_with_no_password(self):
+        with self.assertRaises(TypeError):
+            for driver in ('cookie', 'jwt'):
+                self.auth.driver = driver
+                self.assertTrue(self.auth.login('nopassword@email.com', None))
 
     # def test_can_login_with_second_password(self):
     #     self.auth.auth_model.__password__ = 'second_password'
@@ -126,7 +134,7 @@ class TestAuth(DatabaseTestCase):
             self.auth.driver = driver
             self.assertTrue(self.auth.login_by_id(1))
             self.assertTrue(self.request.get_cookie('token'))
-            self.assertFalse(self.auth.login_by_id(2))
+            self.assertFalse(self.auth.login_by_id(3))
 
     def test_login_once_does_not_set_cookie(self):
         for driver in ('cookie', 'jwt'):

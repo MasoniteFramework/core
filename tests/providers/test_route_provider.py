@@ -3,6 +3,7 @@ import unittest
 from app.http.controllers.ControllerTest import ControllerTest
 from config import application, middleware
 from masonite.app import App
+from masonite.auth import Csrf
 from masonite.providers.RouteProvider import RouteProvider
 from masonite.request import Request
 from masonite.response import Response
@@ -32,6 +33,7 @@ class TestRouteProvider(unittest.TestCase):
         self.app.bind('ViewClass', view)
         self.app.bind('View', view.render)
         self.app.bind('Auth', Auth)
+        self.app.bind('Csrf', Csrf(self.app.make('Request')))
         self.app.bind('AuthCookieDriver', AuthCookieDriver)
         self.app.bind('AuthManager', AuthManager(self.app).driver('cookie'))
         self.provider = RouteProvider()
@@ -82,6 +84,17 @@ class TestRouteProvider(unittest.TestCase):
 
         assert self.app.make('Request').param('id') == 'test'
         assert self.app.make('Response') == 'test'
+
+    def test_no_base_route_returns_404(self):
+        self.app.make('Route').url = '/'
+        self.app.bind('WebRoutes', [Get('/test', ControllerTest.test)])
+        self.provider.boot(
+            self.app.make('Route'),
+            self.app.make('Request'),
+            self.app.make(Response)
+        )
+        print(self.app.make('Request').get_status_code())
+        assert self.app.make('Request').is_status(404)
 
     def test_controller_that_return_a_view_with_trailing_slash(self):
 
