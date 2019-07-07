@@ -10,7 +10,7 @@ and this project adheres to [Sentimental Versioning](http://sentimentalversionin
 - Added a lot more view helpers
 - Added better test case for database tests
 
-### Changed
+### Changed 
 - Changed Craft serve command now reloads by default. You can still pass in the -r flag but it is not required. You can also disable reloading by using craft serve -d for --dont-reload
 - Changed all pytest tests to unittests
 
