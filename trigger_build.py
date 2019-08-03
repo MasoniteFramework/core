@@ -57,7 +57,7 @@ if os.getenv('CIRCLE_PR_NUMBER'):
 
 parameters = {}
 for argument in args.build or []:
-    if not '=' in argument:
+    if '=' not in argument:
         print("ERROR: '--build' argument must contain a '=' sign. Got '{}'".format(argument))
         exit(1)
     key = argument.split('=')[0]
