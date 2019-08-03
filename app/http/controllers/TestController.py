@@ -4,6 +4,7 @@ from masonite.request import Request
 
 class TestController:
 
+
     def __init__(self):
         self.test = True
 
