@@ -47,7 +47,7 @@ class ServeCommand(Command):
             run(self.option("host"), self.option("port"), application)
 
     def _run_reloader(self, reloader, extra_files=None):
-        if not extra_files:
+        if extra_files is None:
             extra_files = []
         reloader._capture_signals()
         reloader._start_monitor()
