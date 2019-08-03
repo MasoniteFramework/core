@@ -46,7 +46,9 @@ class ServeCommand(Command):
             from ._devserver import run
             run(self.option("host"), self.option("port"), application)
 
-    def _run_reloader(self, reloader, extra_files=[]):
+    def _run_reloader(self, reloader, extra_files=None):
+        if not extra_files:
+            extra_files = []
         reloader._capture_signals()
         reloader._start_monitor()
         for blob in extra_files:
