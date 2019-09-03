@@ -88,3 +88,6 @@ class QueueException(Exception):
 
 class AmbiguousError(Exception):
     pass
+
+class RouterError(Exception):
+    pass

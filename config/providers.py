@@ -2,7 +2,7 @@
 
 from masonite.providers import (AppProvider, BroadcastProvider, CacheProvider,
                                 CsrfProvider, HelpersProvider, MailProvider,
-                                QueueProvider, RouteProvider, SassProvider,
+                                QueueProvider, RouteProvider, RouterProvider, SassProvider,
                                 SessionProvider, StatusCodeProvider,
                                 UploadProvider, ViewProvider,
                                 WhitenoiseProvider)
@@ -17,6 +17,7 @@ learn more more about Service Providers in our documentation
 PROVIDERS = [
     # Framework Providers
     AppProvider,
+    RouterProvider,
     SessionProvider,
     RouteProvider,
     StatusCodeProvider,
