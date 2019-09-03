@@ -22,9 +22,9 @@ class TestProviders(unittest.TestCase):
 
         self.app.bind('Response', 'test')
         self.app.bind('WebRoutes', [
-            Get().route('url', 'TestController@show'),
-            Get().route('url/', 'TestController@show'),
-            Get().route('url/@firstname', 'TestController@show'),
+            Get().route('foo', 'TestController@show'),
+            Get().route('bar/', 'TestController@show'),
+            Get().route('foobar/@firstname', 'TestController@show'),
         ])
 
         self.app.bind('Response', 'Route not found. Error 404')

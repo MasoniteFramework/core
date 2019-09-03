@@ -1,9 +1,11 @@
+import copy
 import os
 import unittest
 
 from masonite.provider import ServiceProvider
 from masonite.request import Request
-from masonite.routes import Get
+from masonite.routes import Get, Route
+from masonite.router import Router
 from masonite.testsuite.TestSuite import TestSuite, generate_wsgi
 
 
@@ -66,6 +68,19 @@ class TestServiceProvider(unittest.TestCase):
     def setUp(self):
         self.app = TestSuite().create_container().container
         self.app.resolve_parameters = True
+        
+        router = Router() 
+        router.compilers = copy.deepcopy(Route.route_compilers)
+        
+        # Insert routes in tree
+        for web_route in self.app.make("WebRoutes"):
+            if web_route.required_domain:
+                url = "{subdomain}.{url}".format(subdomain=web_route.required_domain, url=web_route.route_url)
+            else:
+                url = web_route.route_url
+            router.insert(url, web_route, web_route.method_type)
+        self.app.bind("Router", router)
+        
         self.provider = ServiceProvider()
         self.provider.load_app(self.app).register()
         self.load_provider = LoadProvider()
@@ -80,7 +95,7 @@ class TestServiceProvider(unittest.TestCase):
 
         self.assertEqual(self.app.resolve(ContainerTest().boot), self.app.make('Request'))
 
-    def test_can_call_container_with_annotations_from_variable(self):
+    def test_can_call_curlontainer_with_annotations_from_variable(self):
         request = Request(generate_wsgi())
 
         self.app.bind('Request', request)

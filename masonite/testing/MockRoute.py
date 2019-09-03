@@ -1,4 +1,7 @@
+import copy
 from masonite.request import Request
+from masonite.routes import Route
+from masonite.router import Router
 from masonite.testsuite import TestSuite, generate_wsgi
 import json
 from masonite.helpers import Dot
@@ -10,6 +13,18 @@ class MockRoute:
         self.route = route
         self.container = container
         self.wsgi = wsgi
+        
+        router = Router() 
+        router.compilers = copy.deepcopy(Route.route_compilers)
+        
+        # Insert routes in tree
+        for web_route in self.container.make("WebRoutes"):
+            if web_route.required_domain:
+                url = "{subdomain}.{url}".format(subdomain=web_route.required_domain, url=web_route.route_url)
+            else:
+                url = web_route.route_url
+            router.insert(url, web_route, web_route.method_type)
+        self.container.bind("Router", router)
 
     def isNamed(self, name):
         return self.route.named_route == name

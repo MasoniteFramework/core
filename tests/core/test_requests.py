@@ -189,9 +189,9 @@ class TestRequest(unittest.TestCase):
 
         container.bind('Response', 'test')
         container.bind('WebRoutes', [
-            Get().route('url', 'TestController@show'),
-            Get().route('url/', 'TestController@show'),
-            Get().route('url/@firstname', 'TestController@show'),
+            Get().route('foo', 'TestController@show'),
+            Get().route('bar/', 'TestController@show'),
+            Get().route('foobar/@firstname', 'TestController@show'),
         ])
 
         container.bind('Response', 'Route not found. Error 404')

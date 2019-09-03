@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 
 from masonite import env
 from masonite.helpers.routes import flatten_routes, create_matchurl
+
 from masonite.helpers.migrations import Migrations
 from masonite.testsuite import generate_wsgi
 from masonite.exceptions import RouteNotFoundException

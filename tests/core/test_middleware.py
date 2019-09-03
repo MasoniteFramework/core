@@ -1,8 +1,11 @@
+import copy
+
 from masonite.app import App
 from masonite.request import Request
 from masonite.response import Response
 from masonite.view import View
 from masonite.routes import Get, Route
+from masonite.router import Router
 from masonite.testsuite import generate_wsgi
 from masonite.auth import Csrf
 from masonite.providers import RouteProvider
@@ -49,6 +52,19 @@ class TestMiddleware(unittest.TestCase):
             'test': MiddlewareTest,
             'throttle:1,2': MiddlewareValueTest
         })
+        
+        router = Router()
+        router.compilers = copy.deepcopy(Route.route_compilers)
+
+        # Insert routes in tree
+        for web_route in self.app.make("WebRoutes"):
+            if web_route.required_domain:
+                url = "{subdomain}.{url}".format(subdomain=web_route.required_domain, url=web_route.route_url)
+            else:
+                url = web_route.route_url
+            router.insert(url, web_route, web_route.method_type)
+
+        self.app.bind("Router", router)
 
         self.provider = RouteProvider()
         self.provider.app = self.app
