@@ -5,7 +5,6 @@ from masonite.request import Request
 from masonite.response import Response
 from masonite.routes import Route
 from masonite.router import Router
-from snoop import snoop, pp
 
 
 class RouteProvider(ServiceProvider):
