@@ -1,6 +1,6 @@
 import copy
 
-from masonite.route import Route
+from masonite.routes import Route
 from masonite.router import Router
 from masonite.testsuite.TestSuite import TestSuite
 import unittest
