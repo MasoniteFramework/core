@@ -13,7 +13,7 @@
 
 ----
 
-# Note: This repository is now only for the development of v2.2. All new development is now done on the [Masonite Masonite Repo](https://github.com/MasoniteFramework/masonite)
+# Note: This repository is now only for the development of v2.2. All new development is now done on the [Main Masonite Repo](https://github.com/MasoniteFramework/masonite)
 
 # Contributing
 
