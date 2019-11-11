@@ -2,6 +2,7 @@ from abc import ABC as Contract, abstractmethod
 
 from masonite.interfaces import Interface
 
+
 class AuthInterface(Interface):
 
     def user(self, auth_model):
@@ -12,6 +13,7 @@ class AuthInterface(Interface):
 
     def delete(self):
         pass
+
 
 class AuthContract(AuthInterface):
     pass

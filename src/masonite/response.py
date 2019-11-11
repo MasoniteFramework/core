@@ -220,6 +220,7 @@ class Response(Extendable):
         """
         return bytes(self.converted_data(), 'utf-8')
 
+
 class Responsable:
 
     def get_response(self):
