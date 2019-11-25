@@ -13,6 +13,8 @@
 
 ----
 
+# Note: This repository is now only for the development of v2.2. All new development is now done on the [Main Masonite Repo](https://github.com/MasoniteFramework/masonite)
+
 # Contributing
 
 Contributing to Masonite is simple:
