@@ -1,5 +1,5 @@
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors)
 <p align="center">
 <img src="https://imgur.com/TDqD4lo.png" width="240px"> 
 </p>
@@ -36,6 +36,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="http://vaibhavmule.com"><img src="https://avatars0.githubusercontent.com/u/6290791?v=4" width="100px;" alt="Vaibhav Mule"/><br /><sub><b>Vaibhav Mule</b></sub></a><br /><a href="https://github.com/MasoniteFramework/core/commits?author=vaibhavmule" title="Code">💻</a> <a href="https://github.com/MasoniteFramework/core/issues?q=author%3Avaibhavmule" title="Bug reports">🐛</a> <a href="#question-vaibhavmule" title="Answering Questions">💬</a> <a href="#ideas-vaibhavmule" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="http://docs.masoniteproject.com"><img src="https://avatars1.githubusercontent.com/u/20172538?v=4" width="100px;" alt="Joseph Mancuso"/><br /><sub><b>Joseph Mancuso</b></sub></a><br /><a href="https://github.com/MasoniteFramework/core/commits?author=josephmancuso" title="Code">💻</a></td>
   </tr>
 </table>
 
