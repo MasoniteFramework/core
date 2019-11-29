@@ -16,6 +16,15 @@
         "question",
         "ideas"
       ]
+    },
+    {
+      "login": "josephmancuso",
+      "name": "Joseph Mancuso",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/20172538?v=4",
+      "profile": "http://docs.masoniteproject.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
