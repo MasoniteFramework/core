@@ -1,4 +1,5 @@
 
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 <p align="center">
 <img src="https://imgur.com/TDqD4lo.png" width="240px"> 
 </p>
@@ -25,3 +26,19 @@ Contributing to Masonite is simple:
 * Check the [open issues and milestones](https://github.com/MasoniteFramework/core/issues).
 * If you have any questions just [open up an issue](https://github.com/MasoniteFramework/core/issues/new/choose) to discuss with the core maintainers.
 * [Follow Masonite Framework on Twitter](https://twitter.com/masoniteproject) to get updates about tips and tricks, announcement and releases.
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<table>
+  <tr>
+    <td align="center"><a href="http://vaibhavmule.com"><img src="https://avatars0.githubusercontent.com/u/6290791?v=4" width="100px;" alt="Vaibhav Mule"/><br /><sub><b>Vaibhav Mule</b></sub></a><br /><a href="https://github.com/MasoniteFramework/core/commits?author=vaibhavmule" title="Code">💻</a> <a href="https://github.com/MasoniteFramework/core/issues?q=author%3Avaibhavmule" title="Bug reports">🐛</a> <a href="#question-vaibhavmule" title="Answering Questions">💬</a> <a href="#ideas-vaibhavmule" title="Ideas, Planning, & Feedback">🤔</a></td>
+  </tr>
+</table>
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
