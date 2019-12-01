@@ -57,6 +57,8 @@ class Request(Extendable):
         self._activate_subdomains = False
         self._status = None
         self.request_variables = {}
+        self.request_query_variables = {}
+        self.request_body_variables = {}
         self._test_user = False
 
         if environ:
@@ -65,29 +67,60 @@ class Request(Extendable):
         self.encryption_key = False
         self.container = None
 
-    def input(self, name, default=False, clean=True):
+    def input(self, name=None, default=False, clean=True):
         """Get a specific input value.
 
-        Arguments:
-            name {string} -- Key of the input data
-
         Keyword Arguments:
+            name {string} -- Key of the input data
             default {string} -- Default value if input does not exist (default: {False})
             clean {bool} -- Whether or not the return value should be
                             cleaned (default: {True})
 
         Returns:
-            string
+            string|bool|dict - Returns value of key if exists
+                               Returns False if key does not exist.
+                               Returns dict of all input if key not specified
+                               
         """
-        if '.' in name and isinstance(self.request_variables.get(name.split('.')[0]), dict):
-            value = DictDot().dot(name, self.request_variables)
-            if value:
-                return value
+        if name:
+            if '.' in name and isinstance(self.request_variables.get(name.split('.')[0]), dict):
+                value = DictDot().dot(name, self.request_variables)
+                if value:
+                    return value
 
-        elif '.' in name:
-            name = dot(name, "{1}[{.}]")
+            elif '.' in name:
+                name = dot(name, "{1}[{.}]")
 
-        return clean_request_input(self.request_variables.get(name, default), clean=clean)
+            return clean_request_input(self.request_variables.get(name, default), clean=clean)
+        else:
+            return self.all()
+
+    def query(self, name=None, default=False, clean=True):
+        """Get a specific query value.
+
+        Keyword Arguments:
+            name {string} -- Key of the query data
+            default {string} -- Default value if input does not exist (default: {False})
+            clean {bool} -- Whether or not the return value should be
+                            cleaned (default: {True})
+
+        Returns:
+            string|bool|dict - Returns value of key if exists
+                               Returns False if key does not exist.
+                               Returns dict of all input if key not specified
+        """
+        if name:
+            if '.' in name and isinstance(self.request_query_variables.get(name.split('.')[0]), dict):
+                value = DictDot().dot(name, self.request_query_variables)
+                if value:
+                    return value
+
+            elif '.' in name:
+                name = dot(name, "{1}[{.}]")
+
+            return clean_request_input(self.request_query_variables.get(name, default), clean=clean)
+        else:
+            return clean_request_input(self.request_query_variables, clean=clean)
 
     def is_post(self):
         """Check if the current request is a POST request.
@@ -209,31 +242,50 @@ class Request(Extendable):
         self.path = environ['PATH_INFO']
         if 'QUERY_STRING' in environ:
             self._set_standardized_request_variables(environ['QUERY_STRING'])
+        if 'REQUEST_BODY' in environ:
+            self._set_standardized_request_variables(
+                environ['REQUEST_BODY'],
+                update=bool('QUERY_STRING' in environ)
+            )
 
         if self.has('__method'):
             self.__set_request_method()
 
         return self
 
-    def _set_standardized_request_variables(self, variables):
+    def _set_standardized_request_variables(self, variables, update=False):
         """The input data is not perfect so we have to standardize it into a dictionary.
 
         Arguments:
             variables {string|dict}
         """
+        is_request_body = True
+
         if isinstance(variables, str):
+            is_request_body = False
             variables = dict(parse_qsl(variables))
 
         try:
-            self.request_variables = {}
+            if not update:
+                self.request_variables = {}
+                self.request_body_variables = {}
+                self.request_query_variables = {}
             for name in variables.keys():
                 value = self._get_standardized_value(variables[name])
-                self.request_variables[name.replace('[]', '')] = value
+                key = name.replace('[]', '')
+                self.request_variables[key] = value
+                if is_request_body:
+                    self.request_body_variables[key] = value
+                else:
+                    self.request_query_variables[key] = value
+
             return
         except TypeError:
             pass
 
         self.request_variables = {}
+        self.request_body_variables = {}
+        self.request_query_variables = {}
 
     def _get_standardized_value(self, value):
         """Get the standardized value based on the type of the value parameter.
