@@ -20,6 +20,7 @@ class ServeCommand(Command):
         {--d|dont-reload : Make the server NOT automatically reload on file changes}
         {--i|reload-interval=1 : Number of seconds to wait to reload after changed are detected}
         {--l|live-reload : Make the server automatically refresh your web browser}
+        {--o|optimize} : Run a more robust server to handle more requests}
     """
 
     def handle(self):
@@ -66,7 +67,18 @@ class ServeCommand(Command):
 
             self._run_reloader(reloader, extra_files=[".env", "storage/"])
 
+        if self.option('optimize'):
+
+            try:
+                from waitress import serve
+            except ImportError
+                raise DriverLibraryNotFound("Could not find the waitress server. Install it by running 'pip install waitress==1.4.0'")
+            
+            from wsgi import application
+            serve(application, host=self.option('host'), port=self.option('port'))
+
         else:
+
             from wsgi import application
             from ._devserver import run
             run(self.option("host"), self.option("port"), application)
