@@ -1,7 +1,7 @@
 from app.jobs.TestJob import TestJob
-from masonite import Queue
-from masonite.request import Request
-from masonite.view import View
+from src.masonite import Queue, Mail
+from src.masonite.request import Request
+from src.masonite.view import View
 
 class TestController:
 
@@ -29,7 +29,7 @@ class TestController:
     def testing(self):
         return 'test'
 
-    def json_response(self, request: Request):
+    def json_response(self):
         return {'id': 2}
 
     def post_test(self):
@@ -53,3 +53,6 @@ class TestController:
         # queue.driver('amqp').push(self.bad)
         queue.driver('amqp').push(TestJob, channel='default')
         return 'queued'
+
+    def mail(self, mail: Mail):
+        return mail.to('idmann509@gmail.com').template('test', {'test': 'mail'})

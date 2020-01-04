@@ -2,17 +2,17 @@ import unittest
 from cgi import MiniFieldStorage
 
 import pytest
-from masonite.app import App
-from masonite.exceptions import InvalidHTTPStatusCode, RouteException
-from masonite.helpers.routes import flatten_routes
-from masonite.helpers.time import cookie_expire_time
-from masonite.request import Request
-from masonite.response import Response
-from masonite.routes import Get, RouteGroup
-from masonite.testsuite.TestSuite import generate_wsgi
 
 from app.http.test_controllers.TestController import TestController
-from config import application, providers
+from src.masonite.app import App
+from src.masonite.exceptions import InvalidHTTPStatusCode, RouteException
+from src.masonite.helpers import config
+from src.masonite.helpers.routes import flatten_routes
+from src.masonite.helpers.time import cookie_expire_time
+from src.masonite.request import Request
+from src.masonite.response import Response
+from src.masonite.routes import Get, RouteGroup
+from src.masonite.testing import generate_wsgi
 
 WEB_ROUTES = flatten_routes([
     Get('/test', 'Controller@show').name('test'),
@@ -88,7 +88,7 @@ class TestRequest(unittest.TestCase):
                 ]
             }
         }
-        self.assertEqual(self.request.input('user.address.*.id'), [1,2])
+        self.assertEqual(self.request.input('user.address.*.id'), [1, 2])
         self.assertEqual(self.request.input('user.address.*.street'), ['A Street', 'B Street'])
 
     def test_request_sets_and_gets_cookies(self):
@@ -179,12 +179,10 @@ class TestRequest(unittest.TestCase):
 
     def test_request_gets_input_from_container(self):
         container = App()
-        container.bind('Application', application)
-        container.bind('Providers', providers)
         container.bind('WSGI', object)
         container.bind('Environ', wsgi_request)
 
-        for provider in container.make('Providers').PROVIDERS:
+        for provider in config('providers.providers'):
             provider().load_app(container).register()
 
         container.bind('Response', 'test')
@@ -196,7 +194,7 @@ class TestRequest(unittest.TestCase):
 
         container.bind('Response', 'Route not found. Error 404')
 
-        for provider in container.make('Providers').PROVIDERS:
+        for provider in config('providers.providers'):
             located_provider = provider().load_app(container)
 
             container.resolve(located_provider.boot)

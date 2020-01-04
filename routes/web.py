@@ -1,6 +1,6 @@
 """Web Routes."""
 
-from masonite.routes import Get, Post, Redirect, RouteGroup, Patch, Options
+from src.masonite.routes import Get, Post, Redirect, RouteGroup, Patch, Options
 
 
 ROUTES = [
@@ -21,6 +21,7 @@ ROUTES = [
     Get('/test/param/@id', 'TestController@testing'),
     Post('/test/json/response/@id', 'TestController@json'),
     Get('/test/set/test/session', 'TestController@session'),
+    Get('/test/mail', 'TestController@mail'),
     RouteGroup([
         Get('/test/1', 'TestController@show'),
         Get('/test/2', 'TestController@show')

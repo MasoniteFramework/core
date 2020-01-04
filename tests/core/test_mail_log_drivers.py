@@ -1,16 +1,14 @@
-from config import mail
 
 import os
-
-from masonite.app import App
-from masonite.view import View
-from masonite.managers.MailManager import MailManager
-from masonite.drivers import MailLogDriver
-from masonite.drivers import MailTerminalDriver
-import unittest
 import sys
+import unittest
 from contextlib import contextmanager
+
 from _io import StringIO
+from src.masonite.app import App
+from src.masonite.drivers import MailLogDriver, MailTerminalDriver
+from src.masonite.managers.MailManager import MailManager
+from src.masonite.view import View
 
 
 @contextmanager
@@ -35,7 +33,6 @@ class TestMailLogDrivers(unittest.TestCase):
         self.app = self.app.bind('Container', self.app)
 
         self.app.bind('Test', object)
-        self.app.bind('MailConfig', mail)
         viewClass = View(self.app)
         self.app.bind('ViewClass', viewClass)
         self.app.bind('View', viewClass.render)

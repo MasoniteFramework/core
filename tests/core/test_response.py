@@ -1,20 +1,15 @@
-import unittest
-import json
 
-from orator import Model
+from orator import LengthAwarePaginator, Model, Paginator
 from orator.support.collection import Collection
-from orator import Paginator, LengthAwarePaginator
-from app.User import User
+
 from app.http.controllers.TestController import \
     TestController as ControllerTest
-from masonite.app import App
-from masonite.request import Request
-from masonite.response import Response
-from masonite.testsuite import generate_wsgi
-from masonite.view import View
-from masonite.testing import TestCase
-from masonite.routes import Get
+from app.User import User
 from config.factories import factory
+from src.masonite.response import Response
+from src.masonite.routes import Get
+from src.masonite.testing import TestCase
+from src.masonite.view import View
 
 
 class MockUser(Model):
@@ -179,7 +174,6 @@ class TestResponse(TestCase):
 
     def test_view_should_return_a_json_response_when_returning_paginator_instance(self):
         
-        users = User.all()
         (
             self.get('/paginator')
                 .assertHasJson('count', 10)
