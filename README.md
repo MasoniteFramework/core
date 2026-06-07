@@ -13,7 +13,15 @@
 
 ----
 
-# Note: This repository is now only for the development of v2.2. All new development is now done on the [Main Masonite Repo](https://github.com/MasoniteFramework/masonite)
+# ⚠️ This repository is no longer maintained
+
+> This repository held the core of Masonite 1.x/2.x and is kept for historical reference only.
+>
+> **Masonite development continues at [masonitedev/masonite](https://github.com/masonitedev/masonite).** Masonite 5 is published on PyPI as [**`masonite-framework`**](https://pypi.org/project/masonite-framework/), with documentation at <https://docs.masonite.dev>.
+>
+> ❤️ In memory of [Joseph "Joe" Mancuso](https://github.com/josephmancuso), creator of Masonite.
+
+----
 
 # Contributing
 
